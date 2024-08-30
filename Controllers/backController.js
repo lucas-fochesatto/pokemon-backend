@@ -38,6 +38,7 @@ export const assignPokemon = async (req, res) => {
     }
     if (row) {
       res.status(400).json({ message: 'Hash already used' });
+      return
     }
   });
 
@@ -89,7 +90,7 @@ export const pokemonsByPlayerId = async (req, res) => {
 
   console.log(inventory);
 
-  res.status(200).json(data);
+  res.status(200).json({inventory});
 }
 
 export const createBattle = async (req, res) => {
@@ -164,4 +165,14 @@ export const getPokemonById = async (req, res) => {
   const pokemon = pokemons[id-1];
 
   res.status(200).json(pokemon);
+}
+
+export const getPokemonImage = async (req, res) => {
+  const { id } = req.params;
+
+  console.log('received id', id);
+
+  const pokemon = pokemons[id-1];
+
+  res.status(200).json({ image: pokemon.image });
 }
