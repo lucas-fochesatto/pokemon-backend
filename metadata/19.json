@@ -1,24 +1,41 @@
-{ 
+{
     "id": "19",
-
-    "name": "RATTATA",
-
-    "type": "NORMAL",
-
+    "name": "Rattata",
+    "type": ["Normal"],
     "hp": 30,
-
     "attack": 56,
-
     "defense": 35,
-
     "speed": 72,
-
-    "atk1": "TACKLE,NORMAL",
-
-    "atk2": "TAIL WHIP,NORMAL",
-
-    "atk3": "QUICK ATTACK,NORMAL",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmXERRDBrjpfVfimfDrr2AmXNyJsGHVPWh25m4zke29Dkh"
-
-}
+    "moves": [
+      {
+        "name": "Tackle",
+        "type": "Normal",
+        "power": 40,
+        "accuracy": 100,
+        "effect": "A physical attack that deals damage."
+      },
+      {
+        "name": "Quick Attack",
+        "type": "Normal",
+        "power": 40,
+        "accuracy": 100,
+        "effect": "A physical attack that always goes first."
+      },
+      {
+        "name": "Hyper Fang",
+        "type": "Normal",
+        "power": 80,
+        "accuracy": 90,
+        "effect": "A physical attack that deals damage with a 10% chance to make the opponent flinch."
+      }
+    ],
+    "status": {
+      "currentHP": 30,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "atk": 1,
+        "def": 1,
+        "speed": 1
+      }
+    }
+  }

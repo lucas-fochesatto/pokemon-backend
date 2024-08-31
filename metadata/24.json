@@ -1,24 +1,41 @@
-{ 
+{
     "id": "24",
-
-    "name": "ARBOK",
-
-    "type": "POISON",
-
+    "name": "Arbok",
+    "type": ["Poison"],
     "hp": 60,
-
-    "attack": 95,
-
+    "attack": 85,
     "defense": 69,
-
     "speed": 80,
-
-    "atk1": "BITE,DARK",
-
-    "atk2": "FIRE FANG,FIRE",
-
-    "atk3": "ICE FANG,ICE",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmPNQ9mLwStVKwCcZmC8hE8Sqn8jqBZU1q5YgDVqFW2LPc"
-
-}
+    "moves": [
+      {
+        "name": "Poison Jab",
+        "type": "Poison",
+        "power": 80,
+        "accuracy": 100,
+        "effect": "A physical attack that deals damage with a 30% chance to poison the opponent."
+      },
+      {
+        "name": "Bite",
+        "type": "Dark",
+        "power": 60,
+        "accuracy": 100,
+        "effect": "A physical attack that deals damage with a 30% chance to make the opponent flinch."
+      },
+      {
+        "name": "Glare",
+        "type": "Normal",
+        "power": null,
+        "accuracy": 100,
+        "effect": "Paralyzes the opponent."
+      }
+    ],
+    "status": {
+      "currentHP": 60,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "atk": 1,
+        "def": 1,
+        "speed": 1
+      }
+    }
+  }

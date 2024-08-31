@@ -1,24 +1,41 @@
-{ 
+{
     "id": "17",
-
-    "name": "PIDGEOTTO",
-
-    "type": "NORMAL,FLYING",
-
+    "name": "Pidgeotto",
+    "type": ["Normal", "Flying"],
     "hp": 63,
-
     "attack": 60,
-
     "defense": 55,
-
     "speed": 71,
-
-    "atk1": "GUST,FLYING",
-
-    "atk2": "SAND ATTACK,GROUND",
-
-    "atk3": "TACKLE,NORMAL",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmYdV5qqxPTJ9HDWKn5vRXCXSBPnHYJ8NGBtnHgA711TRp"
-
-}
+    "moves": [
+      {
+        "name": "Wing Attack",
+        "type": "Flying",
+        "power": 60,
+        "accuracy": 100,
+        "effect": "A physical attack that deals damage."
+      },
+      {
+        "name": "Quick Attack",
+        "type": "Normal",
+        "power": 40,
+        "accuracy": 100,
+        "effect": "A physical attack that always goes first."
+      },
+      {
+        "name": "Sand Attack",
+        "type": "Ground",
+        "power": null,
+        "accuracy": 100,
+        "effect": "Lowers the opponent's accuracy by one stage."
+      }
+    ],
+    "status": {
+      "currentHP": 63,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "atk": 1,
+        "def": 1,
+        "speed": 1
+      }
+    }
+  }

@@ -1,24 +1,41 @@
-{ 
+{
     "id": "5",
-
-    "name": "CHARMELEON",
-
-    "type": "FIRE",
-
+    "name": "Charmeleon",
+    "type": ["Fire"],
     "hp": 58,
-
     "attack": 64,
-
     "defense": 58,
-
     "speed": 80,
-
-    "atk1": "EMBER,FIRE",
-
-    "atk2": "GROWL,NORMAL",
-
-    "atk3": "SCRATCH,NORMAL",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmbmNp4Vd8kco2bcxuhqsFFP6N3soUMBTnxQAyRddHfd9M"
-
-}
+    "moves": [
+      {
+        "name": "Scratch",
+        "type": "Normal",
+        "power": 40,
+        "accuracy": 100,
+        "effect": "A physical attack that deals damage."
+      },
+      {
+        "name": "Flamethrower",
+        "type": "Fire",
+        "power": 90,
+        "accuracy": 100,
+        "effect": "Deals damage with a 10% chance to burn the opponent."
+      },
+      {
+        "name": "Smokescreen",
+        "type": "Normal",
+        "power": null,
+        "accuracy": 100,
+        "effect": "Lowers the opponent's accuracy by one stage."
+      }
+    ],
+    "status": {
+      "currentHP": 58,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "atk": 1,
+        "def": 1,
+        "speed": 1
+      }
+    }
+  }

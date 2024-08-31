@@ -1,24 +1,41 @@
-{ 
+{
     "id": "20",
-
-    "name": "RATICATE",
-
-    "type": "NORMAL",
-
+    "name": "Raticate",
+    "type": ["Normal"],
     "hp": 55,
-
     "attack": 81,
-
     "defense": 60,
-
     "speed": 97,
-
-    "atk1": "FOCUS ENERGY,NORMAL",
-
-    "atk2": "QUICK ATTACK,NORMAL",
-
-    "atk3": "SCARY FACE,NORMAL",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmPsR45qfpvfTwETM3d7vp5QpJ6haN1SfkdL2VUnQrzBDK"
-
-}
+    "moves": [
+      {
+        "name": "Hyper Fang",
+        "type": "Normal",
+        "power": 80,
+        "accuracy": 90,
+        "effect": "A physical attack that deals damage with a 10% chance to make the opponent flinch."
+      },
+      {
+        "name": "Crunch",
+        "type": "Dark",
+        "power": 80,
+        "accuracy": 100,
+        "effect": "A physical attack that deals damage with a 20% chance to lower the opponent's Defense by one stage."
+      },
+      {
+        "name": "Quick Attack",
+        "type": "Normal",
+        "power": 40,
+        "accuracy": 100,
+        "effect": "A physical attack that always goes first."
+      }
+    ],
+    "status": {
+      "currentHP": 55,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "atk": 1,
+        "def": 1,
+        "speed": 1
+      }
+    }
+  }

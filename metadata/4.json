@@ -1,24 +1,41 @@
-{ 
+{
     "id": "4",
-
-    "name": "CHARMANDER",
-
-    "type": "FIRE",
-
+    "name": "Charmander",
+    "type": ["Fire"],
     "hp": 39,
-
     "attack": 52,
-
     "defense": 43,
-
     "speed": 65,
-
-    "atk1": "GROWL,NORMAL",
-
-    "atk2": "SCRATCH,NORMAL",
-
-    "atk3": "EMBER,FIRE",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmS2BW1e9xQBcgS3174N2Acptv5jZzvaVxJhCFT1qrA5VD"
-
-}
+    "moves": [
+      {
+        "name": "Scratch",
+        "type": "Normal",
+        "power": 40,
+        "accuracy": 100,
+        "effect": "A physical attack that deals damage."
+      },
+      {
+        "name": "Ember",
+        "type": "Fire",
+        "power": 40,
+        "accuracy": 100,
+        "effect": "Deals damage with a 10% chance to burn the opponent."
+      },
+      {
+        "name": "Growl",
+        "type": "Normal",
+        "power": null,
+        "accuracy": 100,
+        "effect": "Lowers the opponent's Attack by one stage."
+      }
+    ],
+    "status": {
+      "currentHP": 39,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "atk": 1,
+        "def": 1,
+        "speed": 1
+      }
+    }
+  }

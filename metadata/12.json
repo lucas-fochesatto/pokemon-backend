@@ -1,24 +1,41 @@
-{ 
+{
     "id": "12",
-
-    "name": "BUTTERFREE",
-
-    "type": "BUG,FLYING",
-
+    "name": "Butterfree",
+    "type": ["Bug", "Flying"],
     "hp": 60,
-
     "attack": 45,
-
     "defense": 50,
-
     "speed": 70,
-
-    "atk1": "BUG BITE,BUG",
-
-    "atk2": "GUST,FLYING",
-
-    "atk3": "HARDEN,NORMAL",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmZioejNrRKP9mqibBL6xAqrZXw6n7S2GSoMVWjsJp6f59"
-
-}
+    "moves": [
+      {
+        "name": "Gust",
+        "type": "Flying",
+        "power": 40,
+        "accuracy": 100,
+        "effect": "A special attack that deals damage."
+      },
+      {
+        "name": "Confusion",
+        "type": "Psychic",
+        "power": 50,
+        "accuracy": 100,
+        "effect": "A special attack that deals damage with a 10% chance to confuse the opponent."
+      },
+      {
+        "name": "Sleep Powder",
+        "type": "Grass",
+        "power": null,
+        "accuracy": 75,
+        "effect": "Puts the opponent to sleep."
+      }
+    ],
+    "status": {
+      "currentHP": 60,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "atk": 1,
+        "def": 1,
+        "speed": 1
+      }
+    }
+  }

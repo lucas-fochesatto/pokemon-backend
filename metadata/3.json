@@ -1,24 +1,41 @@
-{  
+{
     "id": "3",
-
-    "name": "VENUSAUR",
-
-    "type": "GRASS,POISON",
-
+    "name": "Venusaur",
+    "type": ["Grass", "Poison"],
     "hp": 80,
-
     "attack": 82,
-
     "defense": 83,
-
     "speed": 80,
-
-    "atk1": "GROWL,NORMAL",
-
-    "atk2": "GROWTH,NORMAL",
-
-    "atk3": "PETAL DANCE,GRASS",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmZFMaYSohPYWJQVGMEUBoQzuajvfbjV2eGQfTPSjpUnmU"
-
-}
+    "moves": [
+      {
+        "name": "Tackle",
+        "type": "Normal",
+        "power": 40,
+        "accuracy": 100,
+        "effect": "A physical attack that deals damage."
+      },
+      {
+        "name": "Solar Beam",
+        "type": "Grass",
+        "power": 120,
+        "accuracy": 100,
+        "effect": "Charges on the first turn, then attacks on the second."
+      },
+      {
+        "name": "Leech Seed",
+        "type": "Grass",
+        "power": null,
+        "accuracy": 90,
+        "effect": "Plants a seed on the opponent to absorb HP each turn."
+      }
+    ],
+    "status": {
+      "currentHP": 80,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "atk": 1,
+        "def": 1,
+        "speed": 1
+      }
+    }
+  }

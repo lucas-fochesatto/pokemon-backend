@@ -1,24 +1,34 @@
-{ 
+{
     "id": "10",
-
-    "name": "CATERPIE",
-
-    "type": "BUG",
-
+    "name": "Caterpie",
+    "type": ["Bug"],
     "hp": 45,
-
     "attack": 30,
-
     "defense": 35,
-
     "speed": 45,
-
-    "atk1": "STRING SHOT,BUG",
-
-    "atk2": "TACKLE,NORMAL",
-
-    "atk3": "BUG BITE,BUG",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmdZbN84Ds42CEmaoqioiCvT35id9m3eNaJAAMcLLkU1dS"
-
-}
+    "moves": [
+      {
+        "name": "Tackle",
+        "type": "Normal",
+        "power": 40,
+        "accuracy": 100,
+        "effect": "A physical attack that deals damage."
+      },
+      {
+        "name": "String Shot",
+        "type": "Bug",
+        "power": null,
+        "accuracy": 95,
+        "effect": "Lowers the opponent's speed by one stage."
+      }
+    ],
+    "status": {
+      "currentHP": 45,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "atk": 1,
+        "def": 1,
+        "speed": 1
+      }
+    }
+  }

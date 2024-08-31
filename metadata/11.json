@@ -1,24 +1,27 @@
-{ 
+{
     "id": "11",
-
-    "name": "METAPOD",
-
-    "type": "BUG",
-
+    "name": "Metapod",
+    "type": ["Bug"],
     "hp": 50,
-
     "attack": 20,
-
     "defense": 55,
-
     "speed": 30,
-
-    "atk1": "HARDEN,NORMAL",
-
-    "atk2": "",
-
-    "atk3": "",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmZh3UAWPCDJbhyVHTyfbUeqfFHscCvPR6CmK2SKJ1hRkS"
-
-}
+    "moves": [
+      {
+        "name": "Harden",
+        "type": "Normal",
+        "power": null,
+        "accuracy": null,
+        "effect": "Raises the user's Defense by one stage."
+      }
+    ],
+    "status": {
+      "currentHP": 50,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "atk": 1,
+        "def": 1,
+        "speed": 1
+      }
+    }
+  }

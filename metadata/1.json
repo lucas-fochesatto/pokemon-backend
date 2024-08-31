@@ -1,24 +1,41 @@
-{ 
+{
     "id": "1",
-
-    "name": "BULBASAUR",
-
-    "type": "GRASS,POISON",
-
+    "name": "Bulbasaur",
+    "type": ["Grass", "Poison"],
     "hp": 45,
-
     "attack": 49,
-
     "defense": 49,
-
     "speed": 45,
-
-    "atk1": "GROWL,NORMAL",
-
-    "atk2": "TACKLE,NORMAL",
-
-    "atk3": "VINE WHIP,GRASS",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmRjhk46aGt7rTV4GUio2BcJXhj19EVHmAcN3nAnckr1ad"
-
-}
+    "moves": [
+      {
+        "name": "Tackle",
+        "type": "Normal",
+        "power": 40,
+        "accuracy": 100,
+        "effect": "A physical attack that deals damage."
+      },
+      {
+        "name": "Vine Whip",
+        "type": "Grass",
+        "power": 45,
+        "accuracy": 100,
+        "effect": "A physical attack that deals damage."
+      },
+      {
+        "name": "Growl",
+        "type": "Normal",
+        "power": null,
+        "accuracy": 100,
+        "effect": "Lowers the opponent's Attack by one stage."
+      }
+    ],
+    "status": {
+      "currentHP": 45,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "atk": 1,
+        "def": 1,
+        "speed": 1
+      }
+    }
+  }

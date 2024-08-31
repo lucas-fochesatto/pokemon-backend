@@ -1,24 +1,41 @@
-{ 
-    "id": "9", 
-
-    "name": "BLASTOISE",
-
-    "type": "WATER",
-
+{
+    "id": "9",
+    "name": "Blastoise",
+    "type": ["Water"],
     "hp": 79,
-
     "attack": 83,
-
     "defense": 100,
-
     "speed": 78,
-
-    "atk1": "TACKLE,NORMAL",
-
-    "atk2": "TAIL WHIP,NORMAL",
-
-    "atk3": "WATER GUN,WATER",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmS78pGCYAVST9bc6CJtcHUTgi7JtYGsL7LExS5bVA7MHi"
-
-}
+    "moves": [
+      {
+        "name": "Hydro Pump",
+        "type": "Water",
+        "power": 110,
+        "accuracy": 80,
+        "effect": "A powerful water attack that deals damage."
+      },
+      {
+        "name": "Bite",
+        "type": "Dark",
+        "power": 60,
+        "accuracy": 100,
+        "effect": "A physical attack that deals damage with a 30% chance to make the opponent flinch."
+      },
+      {
+        "name": "Skull Bash",
+        "type": "Normal",
+        "power": 130,
+        "accuracy": 100,
+        "effect": "The user tucks in its head, then attacks on the next turn."
+      }
+    ],
+    "status": {
+      "currentHP": 79,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "atk": 1,
+        "def": 1,
+        "speed": 1
+      }
+    }
+  }

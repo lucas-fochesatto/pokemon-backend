@@ -1,24 +1,27 @@
-{ 
+{
     "id": "14",
-
-    "name": "KAKUNA",
-
-    "type": "BUG,POISON",
-
+    "name": "Kakuna",
+    "type": ["Bug", "Poison"],
     "hp": 45,
-
     "attack": 25,
-
     "defense": 50,
-
     "speed": 35,
-
-    "atk1": "HARDEN,NORMAL",
-
-    "atk2": "",
-
-    "atk3": "",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmVEtjg6YdTbeNwXFwq95fWmJa4L3PfJyPe8nyTCsQB9UF"
-
-}
+    "moves": [
+      {
+        "name": "Harden",
+        "type": "Normal",
+        "power": null,
+        "accuracy": null,
+        "effect": "Raises the user's Defense by one stage."
+      }
+    ],
+    "status": {
+      "currentHP": 45,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "atk": 1,
+        "def": 1,
+        "speed": 1
+      }
+    }
+  }

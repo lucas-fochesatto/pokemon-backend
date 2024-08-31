@@ -1,24 +1,34 @@
-{ 
+{
     "id": "13",
-
-    "name": "WEEDLE",
-
-    "type": "BUG,POISON",
-
+    "name": "Weedle",
+    "type": ["Bug", "Poison"],
     "hp": 40,
-
     "attack": 35,
-
     "defense": 30,
-
     "speed": 50,
-
-    "atk1": "POISON STING,POISON",
-
-    "atk2": "STRING SHOT,BUG",
-
-    "atk3": "BUG BITE,BUG",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmYmZY1fpniccjtpxpqZy2dz7uTahbbdramZnmxhrbbRfa"
-
-}
+    "moves": [
+      {
+        "name": "Poison Sting",
+        "type": "Poison",
+        "power": 15,
+        "accuracy": 100,
+        "effect": "A physical attack that deals damage with a 30% chance to poison the opponent."
+      },
+      {
+        "name": "String Shot",
+        "type": "Bug",
+        "power": null,
+        "accuracy": 95,
+        "effect": "Lowers the opponent's speed by one stage."
+      }
+    ],
+    "status": {
+      "currentHP": 40,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "atk": 1,
+        "def": 1,
+        "speed": 1
+      }
+    }
+  }
