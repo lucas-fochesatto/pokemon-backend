@@ -44,16 +44,17 @@ export const assignPokemon = async (req, res) => {
 
   console.log("Hash not used yet");
 
-  const transaction = await provider.getTransaction(hash);
+  /* const transaction = await provider.getTransaction(hash);
 
   const senderWallet = transaction.from;
 
   if(transaction.to.toLowerCase() !== process.env.RECEIVER_ADDRESS.toLowerCase()) {
     res.status(400).json({ message: 'Invalid transaction' });
     return
-  }
+  } */
 
   const connectedLocalSigner = localSigner.connect(provider);
+  const senderWallet = connectedLocalSigner.address;
 
   // use the signer to call the inputBox smart contract
   // signed by us :)
@@ -96,7 +97,7 @@ export const pokemonsByPlayerId = async (req, res) => {
 export const createBattle = async (req, res) => {
   try {
     const { maker, maker_pokemons } = req.body;
-    
+
     let makerPokemonsHP = [];
     const makerPokemonsJSON = JSON.parse(maker_pokemons);
 
@@ -107,14 +108,27 @@ export const createBattle = async (req, res) => {
     const newBattle = new Battle(null, maker, null, maker_pokemons, null, JSON.stringify(makerPokemonsHP), null, 'waiting');
 
     const insert = db.prepare('INSERT INTO battles (maker, maker_pokemons, maker_hp, status) VALUES (?, ?, ?, ?)');
-    insert.run(newBattle.maker, newBattle.maker_pokemons, newBattle.maker_hp, newBattle.status);
+    
+    // Executa a inserção e obtém o ID do registro recém inserido
+    insert.run(newBattle.maker, newBattle.maker_pokemons, newBattle.maker_hp, newBattle.status, function(err) {
+      if (err) {
+        return res.status(500).json({ message: 'Error creating battle', error: err.message });
+      }
+      
+      // Atribui o ID recém inserido à newBattle
+      newBattle.id = this.lastID;
+      
+      // Retorna a batalha com o ID
+      res.status(200).json({ message: 'Battle created successfully', newBattle });
+    });
+    
     insert.finalize();
-
-    res.status(200).json({ message: 'Battle created successfully' });
   } catch (error) {
     console.log(error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 export const getBattleById = async (req, res) => {
   try {
@@ -144,8 +158,6 @@ export const joinBattle = async (req, res) => {
     opponentPokemonsJSON.map(pokemon => {
       opponentPokemonsHP.push(pokemons[pokemon-1].hp);
     });
-
-    console.log
 
     db.run('UPDATE battles SET taker = ?, taker_pokemons = ?, taker_hp = ?, status = ? WHERE id = ?', [opponent, opponent_pokemons, JSON.stringify(opponentPokemonsHP), 'ongoing', battleId], (err) => {
       if (err) {
