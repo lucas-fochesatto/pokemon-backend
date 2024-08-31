@@ -2,7 +2,7 @@ import db from "../database.js";
 import Battle from "../Models/Battle.js";
 import pokemons from "../utils/pokemons.js";
 import { localSigner, provider } from "../ethers.js";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { INPUTBOX_ABI } from "../utils/inputBoxAbi.js";
 
 export const sendTransaction = async (req, res) => {
@@ -68,8 +68,9 @@ export const assignPokemon = async (req, res) => {
   const insert = db.prepare('INSERT INTO hashes (hash) VALUES (?)');
   insert.run(hash);
   insert.finalize();
-
-  res.status(200).json({ message: 'Pokemon assigned successfully', receipt });
+  // console.log(receipt.events.args[1].hex)
+  
+  res.status(200).json({ message: 'Pokemon assigned successfully', pokemonId: receipt.events[0].args[1] });
 }
 
 export const pokemonsByPlayerId = async (req, res) => {
