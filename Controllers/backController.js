@@ -155,19 +155,23 @@ export const getBattleById = async (req, res) => {
 
 export const joinBattle = async (req, res) => {
   try {
-    const { battleId, opponent, opponent_pokemons } = req.body;
+    const { battleId, taker, taker_pokemons } = req.body;
+
+    console.log('Receieved taker', req.body);
 
     let opponentPokemonsHP = [];
-    const opponentPokemonsJSON = JSON.parse(opponent_pokemons);
+    const opponentPokemonsJSON = JSON.parse(taker_pokemons);
 
     opponentPokemonsJSON.map(pokemon => {
       opponentPokemonsHP.push(pokemons[pokemon-1].hp);
     });
 
-    db.run('UPDATE battles SET taker = ?, taker_pokemons = ?, taker_hp = ?, status = ? WHERE id = ?', [opponent, opponent_pokemons, JSON.stringify(opponentPokemonsHP), 'ongoing', battleId], (err) => {
+    db.run('UPDATE battles SET taker = ?, taker_pokemons = ?, taker_hp = ?, status = ? WHERE id = ?', [taker, taker_pokemons, JSON.stringify(opponentPokemonsHP), 'ongoing', battleId], (err) => {
       if (err) {
         throw err;
       }
+
+      console.log('Battle updated successfully');
 
       res.status(200).json({ message: 'Battle joined successfully' });
     });
