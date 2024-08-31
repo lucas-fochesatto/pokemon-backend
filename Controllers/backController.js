@@ -24,54 +24,58 @@ export const sendTransaction = async (req, res) => {
 }
 
 export const assignPokemon = async (req, res) => {
-  // this should verify if user has paid the fee
-  // call the inputBox smart contract function
-  // with our mnemonic and then generate a random number
-  // from 1 to 25 and assign the pokemon to the user
-
   const { hash, senderId } = req.body;
 
-  // verify if hash has already been used
-  db.get('SELECT * FROM hashes WHERE hash = ?', [hash], (err, row) => {
-    if (err) {
-      throw err;
-    }
-    if (row) {
-      res.status(400).json({ message: 'Hash already used' });
-      return
-    }
+  console.log('SenderId is', senderId);
+
+  // Verifica se o hash já foi usado
+  const row = await new Promise((resolve, reject) => {
+    db.get('SELECT * FROM hashes WHERE hash = ?', [hash], (err, row) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(row);
+    });
   });
+
+  if (row) {
+    return res.status(400).json({ message: 'Hash already used' });
+  }
 
   console.log("Hash not used yet");
 
-  /* const transaction = await provider.getTransaction(hash);
-
-  const senderWallet = transaction.from;
-
-  if(transaction.to.toLowerCase() !== process.env.RECEIVER_ADDRESS.toLowerCase()) {
-    res.status(400).json({ message: 'Invalid transaction' });
-    return
-  } */
-
-  const connectedLocalSigner = localSigner.connect(provider);
-  const senderWallet = connectedLocalSigner.address;
-
-  // use the signer to call the inputBox smart contract
-  // signed by us :)
-  const inputBoxContract = new ethers.Contract(process.env.INPUTBOX_ADDRESS || '0x59b22D57D4f067708AB0c00552767405926dc768', INPUTBOX_ABI, connectedLocalSigner);
-  console.log('Connected to inputBox contract');
-
-  const tx = await inputBoxContract.addInput(process.env.DAPP_ADDRESS || '0xab7528bb862fb57e8a2bcd567a2e929a0be56a5e', ethers.utils.toUtf8Bytes(JSON.stringify({ senderId, senderWallet, action: 'mint-pokemon' })));
-
-  const receipt = await tx.wait();
-
+  // Insere o hash no banco de dados após a transação
   const insert = db.prepare('INSERT INTO hashes (hash) VALUES (?)');
   insert.run(hash);
   insert.finalize();
-  // console.log(receipt.events.args[1].hex)
-  
-  res.status(200).json({ message: 'Pokemon assigned successfully', pokemonId: receipt.events[0].args[1] });
+
+  try {
+    const connectedLocalSigner = localSigner.connect(provider);
+    const senderWallet = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266';
+
+    // Usa o signer para chamar o smart contract inputBox
+    const inputBoxContract = new ethers.Contract(
+      process.env.INPUTBOX_ADDRESS || '0x59b22D57D4f067708AB0c00552767405926dc768',
+      INPUTBOX_ABI,
+      connectedLocalSigner
+    );
+    console.log('Connected to inputBox contract');
+
+    const tx = await inputBoxContract.addInput(
+      process.env.DAPP_ADDRESS || '0xab7528bb862fb57e8a2bcd567a2e929a0be56a5e',
+      ethers.utils.toUtf8Bytes(JSON.stringify({ senderId, senderWallet, action: 'mint-pokemon' }))
+    );
+
+    const receipt = await tx.wait();
+
+    res.status(200).json({ message: 'Pokemon assigned successfully', pokemonId: receipt.events[0].args[1] });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'An error occurred' });
+  }
 }
+
 
 export const pokemonsByPlayerId = async (req, res) => {
   const { id } = req.params;
