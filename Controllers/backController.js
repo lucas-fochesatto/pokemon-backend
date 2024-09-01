@@ -121,10 +121,10 @@ export const createBattle = async (req, res) => {
 
     const newBattle = new Battle(null, maker, null, JSON.stringify(makerPokemons), null, null, null, null, null, 'waiting', 0, null);
 
-    const insert = db.prepare('INSERT INTO battles (maker, maker_pokemons, status, current_turn, battle_log) VALUES (?, ?, ?, ?, ?)');
+    const insert = db.prepare('INSERT INTO battles (maker, maker_pokemons, maker_battling_pokemons, status, current_turn, battle_log) VALUES (?, ?, ?, ?, ?, ?)');
     
     // Executa a inserção e obtém o ID do registro recém inserido
-    insert.run(newBattle.maker, newBattle.maker_pokemons, newBattle.status, 0, '[]', function(err) {
+    insert.run(newBattle.maker, newBattle.maker_pokemons, '[0,1]', newBattle.status, 0, '[]', function(err) {
       if (err) {
         return res.status(500).json({ message: 'Error creating battle', error: err.message });
       }
@@ -180,7 +180,7 @@ export const joinBattle = async (req, res) => {
       })
     });
 
-    db.run('UPDATE battles SET taker = ?, taker_pokemons = ? WHERE id = ?', [taker, JSON.stringify(takerPokemons), battleId], (err) => {
+    db.run('UPDATE battles SET taker = ?, taker_pokemons = ?, taker_battling_pokemons = ? WHERE id = ?', [taker, JSON.stringify(takerPokemons), '[0,1]', battleId], (err) => {
       if (err) {
         throw err;
       }
