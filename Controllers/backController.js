@@ -255,10 +255,7 @@ export const makeMove = async (req, res) => {
 
     // check if pokemon has the move
     const agent = battle.maker === userFid ? 'maker' : 'taker';
-    console.log(battle[`${agent}_pokemons`]);
     const pokemon = battle[`${agent}_pokemons`][battle[`${agent}_battling_pokemons`][0]];
-
-    console.log(pokemon.moveDetails);
     
     const moveDetails = pokemon.moveDetails.find(m => m.id == move);
     if (!moveDetails) {

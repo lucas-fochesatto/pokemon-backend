@@ -171,11 +171,34 @@ const resetPlayerMove = (player, battle) => {
   battle[`${player}_move`] = null;
 }
 
-const isPokemonAliveByExecutor = (executor, battle) => {
-  const selectedPokemon = battle[`${executor}_battling_pokemons`][0];
-  const pokemon = battle[`${executor}_pokemons`][selectedPokemon];
-
+const isPokemonAlive = (pokemon) => {
   return pokemon.status.currentHP > 0;
+}
+
+const notifyFaintedPokemon = (target, battle) => {
+  const selectedPokemon = battle[`${target}_battling_pokemons`][0];
+  const pokemon = battle[`${target}_pokemons`][selectedPokemon];
+
+  if(!isPokemonAlive(pokemon)) {
+    battle.battle_log.push(`${pokemon.name} fainted!`);
+
+    resetPlayerMove('maker', battle);
+    resetPlayerMove('taker', battle);
+
+    battle[`${target}_battling_pokemons`].shift();
+    // swap pokemon
+    if(battle[`${target}_battling_pokemons`].length == 0) {
+      battle.battle_log.push(`${target} has no more pokemons left!`);
+      
+      battle.battle_log.push(`${target == 'maker' ? 'taker' : 'maker'} wins!`);
+
+      battle.status = 'ended';
+
+      return
+    }
+
+    battle.battle_log.push(`${target} sent out ${battle[`${target}_pokemons`][battle[`${target}_battling_pokemons`][0]].name}`);
+  }
 }
 
 export const performBattle = (battle) => {
@@ -184,25 +207,17 @@ export const performBattle = (battle) => {
     if(effect.checkDuration && effect instanceof StartEffect) effect.onExecute(battle);
     else effect.onPop();
   });
+  
+  notifyFaintedPokemon('maker', battle);
+  notifyFaintedPokemon('taker', battle);
+
+  if(battle.status == 'ended') {
+    return;
+  }
 
   const next = determineMoveOrder(battle);
-  const { maker_move, taker_move } = battle;
 
   if(next == null) {
-    return;
-  }
-
-  // verify if next is alive
-  if(!isPokemonAliveByExecutor(next == 'maker' ? 'maker' : 'taker', battle)) {
-    resetPlayerMove('maker', battle);
-    resetPlayerMove('taker', battle);
-    return;
-  }
-
-  // verify if other player is alive
-  if(!isPokemonAliveByExecutor(next == 'maker' ? 'taker' : 'maker', battle)) {
-    resetPlayerMove('maker', battle);
-    resetPlayerMove('taker', battle);    
     return;
   }
 
@@ -219,7 +234,7 @@ export const performBattle = (battle) => {
     resetPlayerMove('maker', battle);
     resetPlayerMove('taker', battle);
   } else {
-    moveset[next == 'maker' ? maker_move : taker_move].executeMove(next, battle);
+    moveset[next == 'maker' ? battle.maker_move : battle.taker_move].executeMove(next, battle);
 
     // setup next move to null
     resetPlayerMove(next, battle);
