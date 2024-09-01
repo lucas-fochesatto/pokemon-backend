@@ -271,10 +271,43 @@ export const makeMove = async (req, res) => {
 
     await updateBattleInDatabase(battle);
 
+    if(battle.status === 'ended') {
+      await registerLogToCartesi(battle);
+
+      res.status(200).json({ message: 'Battle ended', battle });
+
+      return;
+    }
+
     res.status(200).json({ message: 'Battle status changed', battle });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'An error occurred' });
+  }
+}
+
+export const registerLogToCartesi = async (battle) => {
+  try {
+    const connectedLocalSigner = localSigner.connect(provider);
+
+    // Usa o signer para chamar o smart contract inputBox
+    const inputBoxContract = new ethers.Contract(
+      process.env.INPUTBOX_ADDRESS || '0x59b22D57D4f067708AB0c00552767405926dc768',
+      INPUTBOX_ABI,
+      connectedLocalSigner
+    );
+    console.log('Connected to inputBox contract');
+
+    const tx = await inputBoxContract.addInput(
+      process.env.DAPP_ADDRESS || '0xab7528bb862fb57e8a2bcd567a2e929a0be56a5e',
+      ethers.utils.toUtf8Bytes(JSON.stringify({ battleLog: battle.battle_log, battleId: battle.id, action: 'register-log' }))
+    );
+
+    const receipt = await tx.wait();
+
+    return receipt;
+  } catch (error) {
+    console.error(error);
   }
 }
 
