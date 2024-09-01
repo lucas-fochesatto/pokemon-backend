@@ -6,7 +6,7 @@
     "attack": 82,
     "defense": 83,
     "speed": 80,
-    "moves": [1, 5, 7],
+    "moves": [41, 5, 7],
     "status": {
       "currentHP": 80,
       "statusCondition": null,

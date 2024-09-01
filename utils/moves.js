@@ -21,12 +21,12 @@ class Move {
       "-2": 0.6,
       "-1": 0.75,
       "0": 1,
-      "1": 1.33,
-      "2": 1.66,
-      "3": 2,
-      "4": 2.33,
-      "5": 2.66,
-      "6": 3
+      "1": 1.5,
+      "2": 2,
+      "3": 2.5,
+      "4": 3,
+      "5": 3.5,
+      "6": 4
     };
     return multipliers[stage.toString()] || 1;
   }
@@ -55,10 +55,6 @@ class Move {
 
   dealDamage(agent, battle, attacker, defender, critChance = 0.0625) {
     const modifier = typeMatchup[this.type][defender.type[0]] * (defender.type[1] ? typeMatchup[this.type][defender.type[1]] : 1);
-
-    console.log(attacker, defender);
-
-    console.log(modifier);
 
     const modifierMessages = {
       0: `${defender.name} is not affected by ${this.name}!`,
@@ -332,7 +328,7 @@ export const moveset = [
   new Move(36, 'Glare', 'Normal', null, 100, 'Paralyzes the opponent.', function(agent, battle, attacker, defender) {
     this.inflictStatus(defender, 'paralyze', battle);
   }),
-  new Move(37, 'Thunderbolt', 'Electric', 90, 100, 'A special attack that deals damage with a 10% chance to paralyze the opponent.', function(agent, battle, attacker, defender) {
+  new Move(37, 'Thunderbolt', 'Electric', 90, 90, 'A special attack that deals damage with a 10% chance to paralyze the opponent.', function(agent, battle, attacker, defender) {
     this.dealDamage(agent, battle, attacker, defender);
     if (Math.random() < 0.1) this.inflictStatus(defender, 'paralyze', battle);
   }),
@@ -371,14 +367,3 @@ export const moveset = [
     this.inflictStatus(attacker, 'sleep', battle);
   }),
 ];
-
-// const attacker = pokemons[8];
-// const defender = pokemons[1];
-// const battle = {
-//   battle_log: [],
-//   turn: 1
-// };
-
-// moveset[29].executeMove(attacker, defender, battle);
-
-// console.log(battle.battle_log);
