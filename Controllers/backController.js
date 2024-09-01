@@ -121,10 +121,10 @@ export const createBattle = async (req, res) => {
 
     const newBattle = new Battle(null, maker, null, JSON.stringify(makerPokemons), null, null, null, null, null, 'waiting', 0, null);
 
-    const insert = db.prepare('INSERT INTO battles (maker, maker_pokemons, status) VALUES (?, ?, ?)');
+    const insert = db.prepare('INSERT INTO battles (maker, maker_pokemons, status, current_turn) VALUES (?, ?, ?, ?)');
     
     // Executa a inserção e obtém o ID do registro recém inserido
-    insert.run(newBattle.maker, newBattle.maker_pokemons, newBattle.status, function(err) {
+    insert.run(newBattle.maker, newBattle.maker_pokemons, newBattle.status, 0, function(err) {
       if (err) {
         return res.status(500).json({ message: 'Error creating battle', error: err.message });
       }
@@ -180,7 +180,7 @@ export const joinBattle = async (req, res) => {
       })
     });
 
-    db.run('UPDATE battles SET taker = ?, taker_pokemons = ?, status = ? WHERE id = ?', [taker, JSON.stringify(takerPokemons), 'ongoing', battleId], (err) => {
+    db.run('UPDATE battles SET taker = ?, taker_pokemons = ? WHERE id = ?', [taker, JSON.stringify(takerPokemons), battleId], (err) => {
       if (err) {
         throw err;
       }
@@ -210,29 +210,16 @@ export const selectPokemons = async (req, res) => {
     return res.status(400).json({ message: 'Battle has already started' });
   }
 
-  if (battle.maker === userFid) {
-    // verify if the user has the pokemons
-    const makerPokemons = JSON.parse(battle.maker_pokemons);
-    for (let i = 0; i < pokemons.length; i++) {
-      if (!makerPokemons.find(pokemon => pokemon.id === pokemons[i])) {
-        return res.status(400).json({ message: 'User does not have the pokemons' });
-      }
-    }
-    battle.maker_battling_pokemons = pokemons;
-  } else {
-    // verify if the user has the pokemons
-    const takerPokemons = JSON.parse(battle.taker_pokemons);
-    for (let i = 0; i < pokemons.length; i++) {
-      if (!takerPokemons.find(pokemon => pokemon.id === pokemons[i])) {
-        return res.status(400).json({ message: 'User does not have the pokemons' });
-      }
-    }
-    battle.taker_battling_pokemons = pokemons;
+  const agent = battle.maker === userFid ? 'maker' : 'taker';
+  battle[`${agent}_battling_pokemons`] = pokemons;
+
+  const otherExecutor = agent === 'maker' ? 'taker' : 'maker';
+  if(battle[`${otherExecutor}_battling_pokemons`]) {
+    battle.status = 'ongoing';
   }
 
-  const executor = battle.maker === userFid ? 'maker' : 'taker';
-  const column = `${executor}_battling_pokemons`;
-  db.run(`UPDATE battles SET ${column} = ? WHERE id = ?`, [JSON.stringify(pokemons), battleId], (err) => {
+  const column = `${agent}_battling_pokemons`;
+  db.run(`UPDATE battles SET ${column} = ?, status = ? WHERE id = ?`, [pokemons, battle.status, battleId], (err) => {
     if (err) {
       return res.status(500).json({ message: 'An error occurred' });
     }
@@ -249,7 +236,6 @@ export const makeMove = async (req, res) => {
     if (!row) return res.status(404).json({ message: 'Battle not found' });
 
     const battle = createBattleInstance(row);
-    console.log(battle);
     
     if (!isUserPartOfBattle(battle, userFid)) {
       return res.status(400).json({ message: 'User is not part of the battle' });
@@ -259,14 +245,22 @@ export const makeMove = async (req, res) => {
       return res.status(400).json({ message: 'Battle has already ended' });
     }
 
+    if (battle.status === 'waiting') {
+      return res.status(400).json({ message: 'Battle has not started yet' });
+    }
+
     if (bothPlayersMoved(battle)) {
       return res.status(400).json({ message: 'Both players have already moved' });
     }
 
     // check if pokemon has the move
     const agent = battle.maker === userFid ? 'maker' : 'taker';
-    const pokemon = battle.maker_pokemons[battle.maker_battling_pokemons[0]]
-    const moveDetails = pokemon.moveDetails.find(m => m.name === move);
+    console.log(battle[`${agent}_pokemons`]);
+    const pokemon = battle[`${agent}_pokemons`][battle[`${agent}_battling_pokemons`][0]];
+
+    console.log(pokemon.moveDetails);
+    
+    const moveDetails = pokemon.moveDetails.find(m => m.id == move);
     if (!moveDetails) {
       return res.status(400).json({ message: 'Pokemon does not have the move' });
     }
