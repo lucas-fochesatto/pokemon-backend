@@ -177,7 +177,7 @@ const isPokemonAliveByExecutor = (executor, battle) => {
   return pokemon.status.currentHP > 0;
 }
 
-export const performBattle = async (battle) => {
+export const performBattle = (battle) => {
 
   effectsStack.map(effect => {
     if(effect.checkDuration && effect instanceof StartEffect) effect.onExecute(battle);
