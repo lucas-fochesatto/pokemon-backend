@@ -13,7 +13,9 @@
       "statusMultipliers": {
         "attack": 0,
         "defense": 0,
-        "speed": 0
+        "speed": 0,
+        "evasion": 0,
+        "accuracy": 0
       }
     }
   }
