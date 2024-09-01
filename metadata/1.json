@@ -6,29 +6,7 @@
     "attack": 49,
     "defense": 49,
     "speed": 45,
-    "moves": [
-      {
-        "name": "Tackle",
-        "type": "Normal",
-        "power": 40,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage."
-      },
-      {
-        "name": "Vine Whip",
-        "type": "Grass",
-        "power": 45,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage."
-      },
-      {
-        "name": "Growl",
-        "type": "Normal",
-        "power": null,
-        "accuracy": 100,
-        "effect": "Lowers the opponent's Attack by one stage."
-      }
-    ],
+    "moves": [1, 2, 3],
     "status": {
       "currentHP": 45,
       "statusCondition": null,

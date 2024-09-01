@@ -6,29 +6,7 @@
     "attack": 82,
     "defense": 83,
     "speed": 80,
-    "moves": [
-      {
-        "name": "Tackle",
-        "type": "Normal",
-        "power": 40,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage."
-      },
-      {
-        "name": "Solar Beam",
-        "type": "Grass",
-        "power": 120,
-        "accuracy": 100,
-        "effect": "Charges on the first turn, then attacks on the second."
-      },
-      {
-        "name": "Leech Seed",
-        "type": "Grass",
-        "power": null,
-        "accuracy": 90,
-        "effect": "Plants a seed on the opponent to absorb HP each turn."
-      }
-    ],
+    "moves": [1, 5, 7],
     "status": {
       "currentHP": 80,
       "statusCondition": null,

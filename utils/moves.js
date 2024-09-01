@@ -2,7 +2,7 @@ import pokemons from "./pokemons.js";
 import { typeMatchup } from "./typeMatchup.js";
 
 class Move {
-  constructor(id, name, type, power, accuracy, effect, onExecute) {
+  constructor(id, name, type, power, accuracy, effect, onExecute, priority = 1) {
     this.id = id;
     this.name = name;
     this.type = type;
@@ -10,6 +10,7 @@ class Move {
     this.accuracy = accuracy;
     this.effect = effect;
     this.onExecute = onExecute;
+    this.priority = priority;
   }
 
   executeMove(attacker, defender, battle) {
@@ -79,6 +80,10 @@ class Move {
     battle.battle_log.push(`${defender.name} has taken ${damage} damage!`);
   }
   
+  swapMove(owner, battle) {
+    this.onExecute(owner, battle);
+  }
+
   statsMultiplier(pokemon, stat, amount, battle) {
     pokemon.status[stat] += amount;
     battle.battle_log.push(`${pokemon.name}'s ${stat} was ${amount > 0 ? 'raised' : 'lowered'}!`);
@@ -113,6 +118,19 @@ class Move {
 }
 
 export const moveset = [
+  new Move(0, 'Swap', null, 0, 100, 'Swap the active Pokemon.', function(owner, battle) {
+    if(owner == 'maker') {
+      // flip two entry array maker_battling_pokemons
+      let temp = battle.maker_battling_pokemons[0];
+      battle.maker_battling_pokemons[0] = battle.maker_battling_pokemons[1];
+      battle.maker_battling_pokemons[1] = temp;
+    } else {
+      // flip two entry array taker_battling_pokemons
+      let temp = battle.taker_battling_pokemons[0];
+      battle.taker_battling_pokemons[0] = battle.taker_battling_pokemons[1];
+      battle.taker_battling_pokemons[1] = temp;
+    }
+  }, 10),
   new Move(1, 'Tackle', 'Normal', 40, 100, 'A physical attack that deals damage.', function(attacker, defender, battle) {
     this.dealDamage(attacker, defender, battle);
   }),
@@ -243,6 +261,12 @@ export const moveset = [
   }),
   new Move(38, 'Charm', 'Fairy', null, 100, 'Lowers the opponent\'s Attack by two stages.', function(attacker, defender, battle) {
     this.statsMultiplier(defender, 'attack', -2, battle);
+  }),
+  new Move(39, 'Bug Bite', 'Bug', 60, 100, 'A physical attack that deals damage and eats the opponent\'s Berry if it is holding one.', function(attacker, defender, battle) {
+    this.buffStat(defender, 'attack', -10, battle);
+  }),
+  new Move(40, 'Quick Attack', 'Normal', 40, 100, 'A physical attack that always goes first.', function(attacker, defender, battle) {
+    this.buffStat(defender, 'attack', -10, battle);
   })
 ];
 

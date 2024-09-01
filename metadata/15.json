@@ -6,29 +6,7 @@
     "attack": 90,
     "defense": 40,
     "speed": 75,
-    "moves": [
-      {
-        "name": "Twineedle",
-        "type": "Bug",
-        "power": 25,
-        "accuracy": 100,
-        "effect": "A physical attack that strikes the opponent twice."
-      },
-      {
-        "name": "Poison Jab",
-        "type": "Poison",
-        "power": 80,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage with a 30% chance to poison the opponent."
-      },
-      {
-        "name": "Agility",
-        "type": "Psychic",
-        "power": null,
-        "accuracy": null,
-        "effect": "Raises the user's Speed by two stages."
-      }
-    ],
+    "moves": [25, 26, 27],
     "status": {
       "currentHP": 65,
       "statusCondition": null,

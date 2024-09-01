@@ -6,15 +6,7 @@
     "attack": 25,
     "defense": 50,
     "speed": 35,
-    "moves": [
-      {
-        "name": "Harden",
-        "type": "Normal",
-        "power": null,
-        "accuracy": null,
-        "effect": "Raises the user's Defense by one stage."
-      }
-    ],
+    "moves": [21, 21, 21],
     "status": {
       "currentHP": 45,
       "statusCondition": null,

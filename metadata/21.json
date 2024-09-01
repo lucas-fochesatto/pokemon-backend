@@ -6,29 +6,7 @@
     "attack": 60,
     "defense": 30,
     "speed": 70,
-    "moves": [
-      {
-        "name": "Peck",
-        "type": "Flying",
-        "power": 35,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage."
-      },
-      {
-        "name": "Fury Attack",
-        "type": "Normal",
-        "power": 15,
-        "accuracy": 85,
-        "effect": "A physical attack that hits 2-5 times in a row."
-      },
-      {
-        "name": "Agility",
-        "type": "Psychic",
-        "power": null,
-        "accuracy": null,
-        "effect": "Raises the user's Speed by two stages."
-      }
-    ],
+    "moves": [32, 33, 27],
     "status": {
       "currentHP": 40,
       "statusCondition": null,

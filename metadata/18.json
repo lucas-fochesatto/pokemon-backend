@@ -6,29 +6,7 @@
     "attack": 80,
     "defense": 75,
     "speed": 101,
-    "moves": [
-      {
-        "name": "Hurricane",
-        "type": "Flying",
-        "power": 110,
-        "accuracy": 70,
-        "effect": "A special attack that deals damage with a 30% chance to confuse the opponent."
-      },
-      {
-        "name": "Quick Attack",
-        "type": "Normal",
-        "power": 40,
-        "accuracy": 100,
-        "effect": "A physical attack that always goes first."
-      },
-      {
-        "name": "Sand Attack",
-        "type": "Ground",
-        "power": null,
-        "accuracy": 100,
-        "effect": "Lowers the opponent's accuracy by one stage."
-      }
-    ],
+    "moves": [29, 40, 28],
     "status": {
       "currentHP": 83,
       "statusCondition": null,

@@ -6,29 +6,7 @@
     "attack": 56,
     "defense": 35,
     "speed": 72,
-    "moves": [
-      {
-        "name": "Tackle",
-        "type": "Normal",
-        "power": 40,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage."
-      },
-      {
-        "name": "Quick Attack",
-        "type": "Normal",
-        "power": 40,
-        "accuracy": 100,
-        "effect": "A physical attack that always goes first."
-      },
-      {
-        "name": "Hyper Fang",
-        "type": "Normal",
-        "power": 80,
-        "accuracy": 90,
-        "effect": "A physical attack that deals damage with a 10% chance to make the opponent flinch."
-      }
-    ],
+    "moves": [1, 40, 30],
     "status": {
       "currentHP": 30,
       "statusCondition": null,

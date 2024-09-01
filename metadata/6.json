@@ -6,29 +6,7 @@
     "attack": 84,
     "defense": 78,
     "speed": 100,
-    "moves": [
-      {
-        "name": "Wing Attack",
-        "type": "Flying",
-        "power": 60,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage."
-      },
-      {
-        "name": "Flamethrower",
-        "type": "Fire",
-        "power": 90,
-        "accuracy": 100,
-        "effect": "Deals damage with a 10% chance to burn the opponent."
-      },
-      {
-        "name": "Dragon Claw",
-        "type": "Dragon",
-        "power": 80,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage."
-      }
-    ],
+    "moves": [12, 10, 13],
     "status": {
       "currentHP": 78,
       "statusCondition": null,

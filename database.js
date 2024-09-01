@@ -10,7 +10,7 @@ const db = new sqlite3.Database('./database.db', (err) => {
 });
 
 db.serialize(() => {
-  db.run('CREATE TABLE IF NOT EXISTS battles (id INTEGER PRIMARY KEY, maker TEXT, taker TEXT, maker_pokemons TEXT,maker_active_mon INTEGER, taker_pokemons TEXT, taker_active_mon INTEGER, maker_move TEXT, taker_move TEXT, status TEXT, battle_log TEXT)')
+  db.run('CREATE TABLE IF NOT EXISTS battles (id INTEGER PRIMARY KEY, maker TEXT, taker TEXT, maker_pokemons TEXT, maker_battling_pokemons TEXT, taker_pokemons TEXT, taker_battling_pokemons TEXT, maker_move TEXT, taker_move TEXT, status TEXT, battle_log TEXT)')
   db.run('CREATE TABLE IF NOT EXISTS pokemons (id INTEGER PRIMARY KEY, name TEXT, type TEXT, hp INTEGER, attack INTEGER, defense INTEGER, speed INTEGER, moves TEXT, status TEXT)')
   db.run('CREATE TABLE IF NOT EXISTS hashes (hash TEXT PRIMARY KEY)')
 

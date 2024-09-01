@@ -6,29 +6,7 @@
     "attack": 63,
     "defense": 80,
     "speed": 58,
-    "moves": [
-      {
-        "name": "Tackle",
-        "type": "Normal",
-        "power": 40,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage."
-      },
-      {
-        "name": "Water Pulse",
-        "type": "Water",
-        "power": 60,
-        "accuracy": 100,
-        "effect": "A special attack that deals damage with a 20% chance to confuse the opponent."
-      },
-      {
-        "name": "Bite",
-        "type": "Dark",
-        "power": 60,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage with a 30% chance to make the opponent flinch."
-      }
-    ],
+    "moves": [1, 16, 17],
     "status": {
       "currentHP": 59,
       "statusCondition": null,
