@@ -1,6 +1,6 @@
 import db from "../database.js";
 import Battle from "../Models/Battle.js";
-import { moveset } from "./moves.js";
+import { effectsStack, EndEffect, moveset, StartEffect } from "./moves.js";
 import { typeMatchup } from "./typeMatchup.js";
 
 export const getBattleFromDb = async (battleId) => {
@@ -153,6 +153,12 @@ const verifySwapMove = (move) => {
 }
 
 export const performBattle = async (battle) => {
+
+  effectsStack.map(effect => {
+    if(effect.checkDuration && effect instanceof StartEffect) effect.onExecute(battle);
+    else effect.onPop();
+  });
+
   const next = determineMoveOrder(battle);
   const { maker_move, taker_move } = battle;
 
@@ -171,4 +177,9 @@ export const performBattle = async (battle) => {
 
     moveset[taker_move].executeMove(attacker, defender, battle);
   }
+
+  effectsStack.map(effect => {
+    if(effect.checkDuration && effect instanceof EndEffect) effect.onExecute(battle);
+    else effect.onPop();
+  });
 }

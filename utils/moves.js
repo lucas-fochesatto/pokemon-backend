@@ -14,7 +14,7 @@ class Move {
   }
 
   executeMove(attacker, defender, battle) {
-    battle.battle_log.push(`${this.name} was used!`);
+    battle.battle_log.push(`${attacker.name} used ${this.name}!`);
     if (Math.random() * 100 <= this.accuracy) { //implement accuracy and evasion
       this.onExecute(attacker, defender, battle);
     } else {
@@ -23,12 +23,8 @@ class Move {
     }
   }
 
-  dealDamage(attacker, defender, battle) {
+  dealDamage(attacker, defender, battle, critChance = 0.0625) {
     const modifier = typeMatchup[this.type][defender.type[0]] * (defender.type[1] ? typeMatchup[this.type][defender.type[1]] : 1);
-
-    console.log(attacker, defender);
-
-    console.log(modifier);
 
     const modifierMessages = {
       0: `${defender.name} is not affected by ${this.name}!`,
@@ -37,11 +33,11 @@ class Move {
       2: `${this.name} is super effective!`,
       4: `${this.name} is super effective!`
     };
-  
+    
     if (modifierMessages[modifier]) { // If the modifier is 1, we don't need to display a message
       battle.battle_log.push(modifierMessages[modifier]);
     }
-  
+    
     const getStatusMultiplier = (status) => {
       const multipliers = {
         "-6": 0.25,
@@ -60,24 +56,27 @@ class Move {
       };
       return multipliers[status] || 1;
     };
-  
+    
     const atkMultiplier = getStatusMultiplier(attacker.status.statusMultipliers.attack);
     const defMultiplier = getStatusMultiplier(defender.status.statusMultipliers.defense);
     //implement accuracy and evasion
-
-    console.log(atkMultiplier, defMultiplier);
-  
+        
     const stab = attacker.type.includes(this.type) ? 1.5 : 1;
-    const damage = Math.floor(
-      Math.floor(
-        Math.floor(
-          Math.floor((2 * (attacker.level || 10) / 5 + 2) * this.power * (attacker.attack * atkMultiplier / defender.defense * defMultiplier) / 50) + 2
+    let isCrit = Math.random() < critChance;
+
+    console.log(critChance, isCrit, stab, modifier, atkMultiplier, defMultiplier);
+    
+    const damage = (isCrit + 1) * Math.ceil(
+      Math.ceil(
+        Math.ceil(
+          Math.ceil((2 * (attacker.level || 50) / 5 + 2) * this.power * (attacker.attack * atkMultiplier / defender.defense * defMultiplier) / 50) + 2
         ) * stab * modifier
       )
     );
   
-    defender.hp -= damage;
+    defender.status.currentHP -= damage;
     battle.battle_log.push(`${defender.name} has taken ${damage} damage!`);
+    isCrit && battle.battle_log.push('Critical hit!');
   }
   
   swapMove(owner, battle) {
@@ -92,12 +91,12 @@ class Move {
   inflictStatus(defender, status, battle) {
     const validStatuses = ['paralyze', 'burn', 'freeze', 'poison', 'sleep', 'confuse', 'flinch', 'wrap'];
     
-    if (!validStatuses.includes(status) || defender.status.currentStatus.includes(status)) {
+    if (!validStatuses.includes(status) || defender.status.statusCondition.includes(status)) {
       battle.battle_log.push(`${defender.name} is already affected by ${status} or cannot be affected!`);
       return;
     }
     
-    defender.status.currentStatus.push(status);
+    defender.status.statusCondition.push(status);
   
     const statusMessages = {
       'paralyze': `${defender.name} is paralyzed! It may be unable to move!`,
@@ -116,6 +115,49 @@ class Move {
   }
 
 }
+
+class Effect {
+  constructor(statusName, target, stat, amount, duration, startTurn) {
+    this.statusName = statusName;
+    this.target = target;
+    this.stat = stat;
+    this.amount = amount;
+    this.duration = duration;
+    this.startTurn = startTurn;
+  }
+
+  checkDuration() {
+    return this.startTurn + this.duration <= battle.turn;
+  }
+
+  onPop() {
+    this.target.status[this.stat] -= this.amount;
+    effectsStack.splice(effectsStack.indexOf(this), 1);
+  }
+}
+
+export class StartEffect extends Effect {
+  constructor(statusName, target, stat, amount, duration, startTurn, triggerStart, triggerEnd) {
+    super(statusName, target, stat, amount, duration, startTurn);
+    this.triggerStart = triggerStart;
+    this.triggerEnd = triggerEnd;
+  }
+}
+
+export class EndEffect extends Effect {
+  constructor(statusName, target, stat, amount, duration, startTurn, triggerEnd) {
+    super(statusName, target, stat, amount, duration, startTurn);
+    this.triggerEnd = triggerEnd;
+  }
+}
+
+const pushEffect = (effect) => {
+  effectsStack.push(effect);
+}
+
+
+
+export const effectsStack = [];
 
 export const moveset = [
   new Move(0, 'Swap', null, 0, 100, 'Swap the active Pokemon.', function(owner, battle) {
@@ -139,9 +181,11 @@ export const moveset = [
   }),
   new Move(3, 'Growl', 'Normal', 0, 100, 'Lowers the opponent\'s Attack by one stage.', function(attacker, defender, battle) {
     this.statsMultiplier(defender, 'attack', -1, battle);
+
+    // pushEffect(new Effect(defender, 'attack', -1, Infinity))
   }),
   new Move(4, 'Razor Leaf', 'Grass', 55, 95, 'A physical attack that deals damage with a high critical hit ratio.', function(attacker, defender, battle) {
-    this.dealDamage(attacker, defender, battle);
+    this.dealDamage(attacker, defender, battle, 0.125);
   }),
   new Move(5, 'Solar Beam', 'Grass', 120, 100, 'Charges on the first turn, then attacks on the second.', function(attacker, defender, battle) {
     this.dealDamage(attacker, defender, battle);
@@ -271,11 +315,11 @@ export const moveset = [
 ];
 
 
-let atker = pokemons[5];
-let defndr = pokemons[2];
+let atker = pokemons[2];
+let defndr = pokemons[8];
 let battle = {battle_log: []};
 
-moveset[9].executeMove(atker, defndr, battle);
+moveset[1].executeMove(atker, defndr, battle);
 
 console.log(battle.battle_log);
 // moveset[1].executeMove(atker, defndr, battle);
