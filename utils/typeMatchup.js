@@ -15,4 +15,3 @@ export const typeMatchup = {
     "Dark": { "Grass": 1, "Fire": 1, "Electric": 1, "Water": 1, "Rock": 1, "Normal": 1, "Fire": 1, "Grass": 1, "Electric": 1, "Water": 1, "Rock": 1, "Fighting": 1, "Poison": 1, "Ground": 1, "Flying": 1, "Psychic": 1, "Bug": 1, "Dragon": 1, "Dark": 1, "Fairy": 1 },
     "Fairy": { "Grass": 1, "Fire": 1, "Electric": 1, "Water": 1, "Rock": 1, "Normal": 1, "Fire": 1, "Grass": 1, "Electric": 1, "Water": 1, "Rock": 1, "Fighting": 1, "Poison": 1, "Ground": 1, "Flying": 1, "Psychic": 1, "Bug": 1, "Dragon": 1, "Dark": 1, "Fairy": 1 }
 };
-  

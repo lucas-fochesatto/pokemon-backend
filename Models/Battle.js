@@ -15,3 +15,7 @@ class Battle {
 }
 
 export default Battle;
+
+
+// maker_pokemons = [OBJETOS POKEMONS]
+// battling_pokemons = [index1, index2]
