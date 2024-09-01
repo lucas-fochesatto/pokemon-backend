@@ -113,12 +113,19 @@ class Move {
   inflictStatus(defender, status, battle) {
     const validStatuses = ['paralyze', 'burn', 'freeze', 'poison', 'sleep', 'confuse', 'flinch', 'wrap'];
     
-    if (!validStatuses.includes(status) || defender.status.statusCondition.includes(status)) {
-      battle.battle_log.push(`${defender.name} is already affected by ${status} or cannot be affected!`);
+    // Check if the status to be inflicted is valid
+    if (!validStatuses.includes(status)) {
+      battle.battle_log.push(`${status} is not a valid status condition!`);
       return;
     }
-    
-    defender.status.statusCondition.push(status);
+
+    // Check if the defender already has a status condition
+    if (defender.status.statusCondition !== '') {
+      battle.battle_log.push(`${defender.name} is already affected by ${defender.status.statusCondition}!`);
+    }
+
+    // Set the new status condition
+    defender.status.statusCondition = status;
   
     const statusMessages = {
       'paralyze': `${defender.name} is paralyzed! It may be unable to move!`,
@@ -368,6 +375,6 @@ export const moveset = [
 //   turn: 1
 // };
 
-// moveset[41].executeMove(attacker, defender, battle);
+// moveset[29].executeMove(attacker, defender, battle);
 
 // console.log(battle.battle_log);
