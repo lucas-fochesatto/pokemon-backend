@@ -4,7 +4,7 @@ import pokemons from "../utils/pokemons.js";
 import { localSigner, provider } from "../ethers.js";
 import { ethers } from "ethers";
 import { INPUTBOX_ABI } from "../utils/inputBoxAbi.js";
-import { bothPlayersMoved, createBattleInstance, determineBattleOutcome, determineMoveOrder, getBattleFromDb, isUserPartOfBattle, loadPokemons, performBattle, processMove, updateBattleInDatabase, updateMove } from "../utils/battleUtils.js";
+import { bothPlayersMoved, createBattleInstance, getBattleFromDb, isUserPartOfBattle, performBattle, updateMove } from "../utils/battleUtils.js";
 import { moveset } from "../utils/moves.js";
 
 export const sendTransaction = async (req, res) => {
@@ -114,7 +114,7 @@ export const createBattle = async (req, res) => {
       })
     });
 
-    const newBattle = new Battle(null, maker, null, JSON.stringify(makerPokemons), null, null, null, null, null, 'waiting', null);
+    const newBattle = new Battle(null, maker, null, JSON.stringify(makerPokemons), null, null, null, null, null, 'waiting', 0, null);
 
     const insert = db.prepare('INSERT INTO battles (maker, maker_pokemons, status) VALUES (?, ?, ?)');
     
@@ -185,6 +185,53 @@ export const joinBattle = async (req, res) => {
   }
 }
 
+export const selectPokemons = async (req, res) => {
+  const { battleId, userFid, pokemons } = req.body;
+
+  const row = await getBattleFromDb(battleId);
+  if (!row) return res.status(404).json({ message: 'Battle not found' });
+
+  const battle = createBattleInstance(row);
+
+  if (!isUserPartOfBattle(battle, userFid)) {
+    return res.status(400).json({ message: 'User is not part of the battle' });
+  }
+
+  if (battle.status !== 'waiting') {
+    return res.status(400).json({ message: 'Battle has already started' });
+  }
+
+  if (battle.maker === userFid) {
+    // verify if the user has the pokemons
+    const makerPokemons = JSON.parse(battle.maker_pokemons);
+    for (let i = 0; i < pokemons.length; i++) {
+      if (!makerPokemons.find(pokemon => pokemon.id === pokemons[i])) {
+        return res.status(400).json({ message: 'User does not have the pokemons' });
+      }
+    }
+    battle.maker_battling_pokemons = pokemons;
+  } else {
+    // verify if the user has the pokemons
+    const takerPokemons = JSON.parse(battle.taker_pokemons);
+    for (let i = 0; i < pokemons.length; i++) {
+      if (!takerPokemons.find(pokemon => pokemon.id === pokemons[i])) {
+        return res.status(400).json({ message: 'User does not have the pokemons' });
+      }
+    }
+    battle.taker_battling_pokemons = pokemons;
+  }
+
+  const executor = battle.maker === userFid ? 'maker' : 'taker';
+  const column = `${executor}_battling_pokemons`;
+  db.run(`UPDATE battles SET ${column} = ? WHERE id = ?`, [JSON.stringify(pokemons), battleId], (err) => {
+    if (err) {
+      return res.status(500).json({ message: 'An error occurred' });
+    }
+
+    res.status(200).json({ message: 'Pokemons selected successfully' });
+  });
+}
+
 export const makeMove = async (req, res) => {
   try {
     const { battleId, userFid, move } = req.body;
@@ -194,7 +241,6 @@ export const makeMove = async (req, res) => {
 
     const battle = createBattleInstance(row);
     console.log(battle);
-    return res.status(200);
     
     if (!isUserPartOfBattle(battle, userFid)) {
       return res.status(400).json({ message: 'User is not part of the battle' });
@@ -211,6 +257,7 @@ export const makeMove = async (req, res) => {
     updateMove(battle, userFid, move);
 
     if (bothPlayersMoved(battle)) {
+      console.log('performing battle...');
       await performBattle(battle);
     }
 

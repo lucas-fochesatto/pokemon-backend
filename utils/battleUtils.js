@@ -21,11 +21,17 @@ export const isUserPartOfBattle = (battle, userId) => {
 }
 
 export const bothPlayersMoved = (battle) => {
-  return battle.maker_move && battle.taker_move;
+  return battle.maker_move != null && battle.taker_move != null;
 }
 
 const arePrioritiesEqual = (maker_move, taker_move) => {
   return moveset[maker_move].priority == moveset[taker_move].priority;
+}
+
+const areThereMovesLeft = (maker_move, taker_move) => {
+  if(maker_move != null) return true;
+  if(taker_move != null) return true;
+  return false;
 }
 
 const compareSpeeds = (battle) => {
@@ -65,13 +71,21 @@ export const processMove = (battle, attacker, move, defender) => {
 export const determineMoveOrder = (battle) => {
   const { maker_move, taker_move } = battle;
 
+  // if there are no moves left, return
+  if(!areThereMovesLeft(maker_move, taker_move)) return null;
+
+  // check if a move is null
+  if(maker_move == null) return 'taker';
+  if(taker_move == null) return 'maker';
+
   // first, compare move priorities
   if(arePrioritiesEqual(maker_move, taker_move)) {
     // if priorities are equal, compare speeds
     return compareSpeeds(battle);
   } else {
-    if(verifySwapMove(maker_move)) return 'maker-swap'
-    if(verifySwapMove(taker_move)) return 'taker-swap'
+    if(isSwapMove(maker_move) && isSwapMove(taker_move)) return 'maker-taker-swap';
+    if(isSwapMove(maker_move)) return 'maker-swap';
+    if(isSwapMove(taker_move)) return 'taker-swap';
     return maker_move.priority > taker_move.priority ? 'maker' : 'taker';
   }
 }
@@ -148,27 +162,61 @@ export const calculateDamage = (attacker, move, defender) => {
   return damage;
 }
 
-const verifySwapMove = (move) => {
+const isSwapMove = (move) => {
   return moveset[move].id == 0;
+}
+
+const resetPlayerMove = (player, battle) => {
+  battle[`${player}_move`] = null;
+}
+
+const isPokemonAliveByExecutor = (executor, battle) => {
+  const selectedPokemon = battle[`${executor}_battling_pokemons`][0];
+  const pokemon = battle[`${executor}_pokemons`][selectedPokemon];
+
+  return pokemon.status.currentHP > 0;
 }
 
 export const performBattle = async (battle) => {
   const next = determineMoveOrder(battle);
   const { maker_move, taker_move } = battle;
 
-  if(next == 'maker-swap') {
-    moveset[0].swapMove('maker', battle);
-  } else if(next == 'taker-swap') {
-    moveset[0].swapMove('taker', battle);
-  } else if(next == 'maker') {
-    const attacker = battle.maker_pokemons[battle.maker_battling_pokemons[0]];
-    const defender = battle.taker_pokemons[battle.taker_battling_pokemons[0]];
-
-    moveset[maker_move].executeMove(attacker, defender, battle);
-  } else if(next == 'taker') {
-    const attacker = battle.taker_pokemons[battle.taker_battling_pokemons[0]];
-    const defender = battle.maker_pokemons[battle.maker_battling_pokemons[0]];
-
-    moveset[taker_move].executeMove(attacker, defender, battle);
+  if(next == null) {
+    return;
   }
+
+  // verify if next is alive
+  if(!isPokemonAliveByExecutor(next == 'maker' ? 'maker' : 'taker', battle)) {
+    resetPlayerMove('maker', battle);
+    resetPlayerMove('taker', battle);
+    return;
+  }
+
+  // verify if other player is alive
+  if(!isPokemonAliveByExecutor(next == 'maker' ? 'taker' : 'maker', battle)) {
+    resetPlayerMove('maker', battle);
+    resetPlayerMove('taker', battle);    
+    return;
+  }
+
+  if(next == 'maker-taker-swap') {
+    moveset[0].swapMove('maker', battle);
+    moveset[0].swapMove('taker', battle);
+
+    resetPlayerMove('maker', battle);
+    resetPlayerMove('taker', battle);
+  } else if(next == 'maker-swap' || next == 'taker-swap') {
+    const executor = next == 'maker-swap' ? 'maker' : 'taker';
+    moveset[0].swapMove(executor, battle);
+
+    resetPlayerMove('maker', battle);
+    resetPlayerMove('taker', battle);
+  } else {
+    moveset[next == 'maker' ? maker_move : taker_move].executeMove(next, battle);
+
+    // setup next move to null
+    resetPlayerMove(next, battle);
+  }
+
+  performBattle(battle);
 }

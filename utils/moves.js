@@ -270,14 +270,13 @@ export const moveset = [
   })
 ];
 
-
-let atker = pokemons[5];
+/* let atker = pokemons[5];
 let defndr = pokemons[2];
 let battle = {battle_log: []};
 
 moveset[9].executeMove(atker, defndr, battle);
 
-console.log(battle.battle_log);
+console.log(battle.battle_log); */
 // moveset[1].executeMove(atker, defndr, battle);
 
 //moveset.find(move => move.id == 1).onExecute(pokemon1, 'defender');
