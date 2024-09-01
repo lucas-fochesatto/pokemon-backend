@@ -13,12 +13,39 @@ class Move {
     this.priority = priority;
   }
 
+  getStatMultiplier(stage) {
+    const multipliers = {
+      "-6": 0.33,
+      "-5": 0.375,
+      "-4": 0.428,
+      "-3": 0.5,
+      "-2": 0.6,
+      "-1": 0.75,
+      "0": 1,
+      "1": 1.33,
+      "2": 1.66,
+      "3": 2,
+      "4": 2.33,
+      "5": 2.66,
+      "6": 3
+    };
+    return multipliers[stage.toString()] || 1;
+  }
+
   executeMove(attacker, defender, battle) {
     battle.battle_log.push(`${attacker.name} used ${this.name}!`);
-    if (Math.random() * 100 <= this.accuracy) { //implement accuracy and evasion
+
+    // Calculate the accuracy roll using attacker's accuracy and defender's evasion
+    const accuracyMultiplier = this.getStatMultiplier(attacker.status.statusMultipliers.accuracy);
+    const evasionMultiplier = this.getStatMultiplier(defender.status.statusMultipliers.evasion);
+
+    // Effective accuracy after applying multipliers
+    const effectiveAccuracy = this.accuracy * (accuracyMultiplier / evasionMultiplier);
+
+    // Determine if the move hits
+    if (Math.random() * 100 <= effectiveAccuracy) {
       this.onExecute(attacker, defender, battle);
     } else {
-      console.log(`${this.name} missed!`);
       battle.battle_log.push(`${this.name} missed!`);
     }
   }
@@ -38,33 +65,13 @@ class Move {
       battle.battle_log.push(modifierMessages[modifier]);
     }
     
-    const getStatusMultiplier = (status) => {
-      const multipliers = {
-        "-6": 0.25,
-        "-5": 0.285,
-        "-4": 0.33,
-        "-3": 0.4,
-        "-2": 0.5,
-        "-1": 0.66,
-        "0": 1,
-        "1": 1.5,
-        "2": 2,
-        "3": 2.5,
-        "4": 3,
-        "5": 3.5,
-        "6": 4
-      };
-      return multipliers[status] || 1;
-    };
-    
-    const atkMultiplier = getStatusMultiplier(attacker.status.statusMultipliers.attack);
-    const defMultiplier = getStatusMultiplier(defender.status.statusMultipliers.defense);
-    //implement accuracy and evasion
-        
+    const atkMultiplier = this.getStatMultiplier(attacker.status.statusMultipliers.attack);
+    const defMultiplier = this.getStatMultiplier(defender.status.statusMultipliers.defense);
+
     const stab = attacker.type.includes(this.type) ? 1.5 : 1;
     let isCrit = Math.random() < critChance;
 
-    console.log(critChance, isCrit, stab, modifier, atkMultiplier, defMultiplier);
+    // console.log(critChance, isCrit, stab, modifier, atkMultiplier, defMultiplier);
     
     const damage = (isCrit + 1) * Math.ceil(
       Math.ceil(
@@ -77,6 +84,8 @@ class Move {
     defender.status.currentHP -= damage;
     battle.battle_log.push(`${defender.name} has taken ${damage} damage!`);
     isCrit && battle.battle_log.push('Critical hit!');
+
+    return damage;
   }
   
   swapMove(owner, battle) {
@@ -86,6 +95,19 @@ class Move {
   statsMultiplier(pokemon, stat, amount, battle) {
     pokemon.status[stat] += amount;
     battle.battle_log.push(`${pokemon.name}'s ${stat} was ${amount > 0 ? 'raised' : 'lowered'}!`);
+  }
+
+  healMove(attacker, evaluateNumber, battle, healPercentage = 1) {
+    const healingAmount = Math.ceil(evaluateNumber * healPercentage);
+
+    const actualHealing = Math.min(healingAmount, attacker.hp - attacker.status.currentHP);
+
+    if (actualHealing) { //can be zero
+      attacker.status.currentHP += actualHealing;
+      battle.battle_log.push(`${attacker.name} healed for ${actualHealing} HP!`);
+    } else {
+      battle.battle_log.push(`${attacker.name} is already at full health!`);
+    }
   }
 
   inflictStatus(defender, status, battle) {
@@ -181,7 +203,6 @@ export const moveset = [
   }),
   new Move(3, 'Growl', 'Normal', 0, 100, 'Lowers the opponent\'s Attack by one stage.', function(attacker, defender, battle) {
     this.statsMultiplier(defender, 'attack', -1, battle);
-
     // pushEffect(new Effect(defender, 'attack', -1, Infinity))
   }),
   new Move(4, 'Razor Leaf', 'Grass', 55, 95, 'A physical attack that deals damage with a high critical hit ratio.', function(attacker, defender, battle) {
@@ -257,6 +278,7 @@ export const moveset = [
   new Move(25, 'Twineedle', 'Bug', 25, 100, 'A physical attack that hits the target twice.', function(attacker, defender, battle) {
     this.dealDamage(attacker, defender, battle);
     this.dealDamage(attacker, defender, battle);
+    if (Math.random() < 0.1) this.inflictStatus(defender, 'poison', battle);
   }),
   new Move(26, 'Poison Jab', 'Poison', 80, 100, 'A physical attack that deals damage with a 30% chance to poison the opponent.', function(attacker, defender, battle) {
     this.dealDamage(attacker, defender, battle);
@@ -307,9 +329,45 @@ export const moveset = [
     this.statsMultiplier(defender, 'attack', -2, battle);
   }),
   new Move(39, 'Bug Bite', 'Bug', 60, 100, 'A physical attack that deals damage and eats the opponent\'s Berry if it is holding one.', function(attacker, defender, battle) {
-    this.buffStat(defender, 'attack', -10, battle);
+    this.dealDamage(attacker, defender, battle);
   }),
   new Move(40, 'Quick Attack', 'Normal', 40, 100, 'A physical attack that always goes first.', function(attacker, defender, battle) {
-    this.buffStat(defender, 'attack', -10, battle);
-  })
+    this.dealDamage(attacker, defender, battle);
+  }),
+  new Move(41, 'Giga Drain', 'Grass', 75, 100, 'A physical attack that deals damage and heals the user for a portion of the damage dealt.', function(attacker, defender, battle) {
+    const damageDealt = this.dealDamage(attacker, defender, battle);
+    this.healMove(attacker, damageDealt, battle, 0.5); // Heal for 50% of the damage dealt
+  }),
+  new Move(42, 'Soft Boiled', 'Normal', null, null, 'Heals the user for 50% of its max HP.', function(attacker, defender, battle) {
+    this.healMove(attacker, attacker.hp, battle, 0.5);
+  }),
+  new Move(43, 'Swords Dance', 'Normal', null, null, 'Raises the user\'s Attack by two stages.', function(attacker, defender, battle) {
+    this.statsMultiplier(attacker, 'attack', 2, battle);
+  }),
+  new Move(44, 'Drain Punch', 'Fighting', 75, 100, 'A physical attack that deals damage and heals the user for a portion of the damage dealt.', function(attacker, defender, battle) {
+    const damageDealt = this.dealDamage(attacker, defender, battle);
+    this.healMove(attacker, damageDealt, battle, 0.5);
+  }),
+  new Move(45, 'Drain Kiss', 'Fairy', 50, 100, 'A special attack that deals damage and heals the user for a portion of the damage dealt.', function(attacker, defender, battle) {
+    const damageDealt = this.dealDamage(attacker, defender, battle);
+    this.healMove(attacker, damageDealt, battle, 0.5);
+  }),
+  new Move(46, 'Recover', 'Normal', null, null, 'Heals the user for 50% of its max HP.', function(attacker, defender, battle) {
+    this.healMove(attacker, attacker.hp, battle, 0.5);
+  }),
+  new Move(47, 'Rest', 'Psychic', null, null, 'Puts the user to sleep and heals it for 100% of its max HP.', function(attacker, defender, battle) {
+    this.healMove(attacker, attacker.hp, battle);
+    this.inflictStatus(attacker, 'sleep', battle);
+  }),
 ];
+
+// const attacker = pokemons[8];
+// const defender = pokemons[1];
+// const battle = {
+//   battle_log: [],
+//   turn: 1
+// };
+
+// moveset[41].executeMove(attacker, defender, battle);
+
+// console.log(battle.battle_log);
