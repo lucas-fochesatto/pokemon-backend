@@ -188,12 +188,12 @@ export const getPokemonById = async (req, res) => {
   res.status(200).json(pokemon);
 }
 
-export const getPokemonImage = async (req, res) => {
+export const getPokemonName = async (req, res) => {
   const { id } = req.params;
 
   console.log('received id', id);
 
   const pokemon = pokemons[id-1];
 
-  res.status(200).json({ image: pokemon.image });
+  res.status(200).json({ name: pokemon.name });
 }
