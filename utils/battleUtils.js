@@ -13,7 +13,7 @@ export const getBattleFromDb = async (battleId) => {
 }
 
 export const createBattleInstance = (row) => {
-  return new Battle(row.id, row.maker, row.taker, JSON.parse(row.maker_pokemons), JSON.parse(row.maker_battling_pokemons), JSON.parse(row.taker_pokemons), JSON.parse(row.taker_battling_pokemons), row.maker_move, row.taker_move, row.status, JSON.parse(row.battle_log));
+  return new Battle(row.id, row.maker, row.taker, JSON.parse(row.maker_pokemons), JSON.parse(row.maker_battling_pokemons), JSON.parse(row.taker_pokemons), JSON.parse(row.taker_battling_pokemons), row.maker_move, row.taker_move, row.status, row.current_turn, JSON.parse(row.battle_log));
 }
 
 export const isUserPartOfBattle = (battle, userId) => {
@@ -128,19 +128,20 @@ export const determineBattleOutcome = (battle) => {
 }
 
 // Update the battle in the database
-export const updateBattleInDatabase = async (battle, makerPokemons, takerPokemons) => {
+export const updateBattleInDatabase = async (battle) => {
   return new Promise((resolve, reject) => {
     db.run(
-      'UPDATE battles SET maker_pokemons = ?, taker_pokemons = ?, maker_hp = ?, taker_hp = ?, status = ?, battle_log = ?, maker_moved = ?, taker_moved = ? WHERE id = ?',
+      'UPDATE battles SET maker_pokemons = ?, maker_battling_pokemons = ?, taker_pokemons = ?, taker_battling_pokemons = ?, maker_move = ?, taker_move = ?, status = ?, current_turn = ?, battle_log = ? WHERE id = ?',
       [
-        JSON.stringify(makerPokemons),
-        JSON.stringify(takerPokemons),
-        makerPokemons[battle.maker_active_mon].hp,
-        takerPokemons[battle.taker_active_mon].hp,
+        JSON.stringify(battle.maker_pokemons),
+        JSON.stringify(battle.maker_battling_pokemons),
+        JSON.stringify(battle.taker_pokemons),
+        JSON.stringify(battle.taker_battling_pokemons),
+        battle.maker_move,
+        battle.taker_move,
         battle.status,
+        battle.current_turn,
         JSON.stringify(battle.battle_log),
-        false,
-        false,
         battle.id
       ],
       (err) => {

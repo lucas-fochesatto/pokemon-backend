@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { assignPokemon, createBattle, getBattleById, getPokemonById, getPokemonImage, joinBattle, makeMove, pokemonsByPlayerId, selectPokemons, sendTransaction } from '../Controllers/backController.js';
+import { assignPokemon, createBattle, getBattleById, getPokemonById, getPokemonName, joinBattle, makeMove, pokemonsByPlayerId, selectPokemons, sendTransaction } from '../Controllers/backController.js';
 
 const router = express.Router();
 

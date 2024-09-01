@@ -14,6 +14,7 @@ for(let i = 1; i <= numberOfFiles; i++) {
   const filePath = path.resolve(__dirname, `../metadata/${i}.json`);
   const rawData = fs.readFileSync(filePath);
   const pokemonData = JSON.parse(rawData);
+  pokemonData.id = i;
   pokemons.push(pokemonData);
 }
 
