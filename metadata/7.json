@@ -6,36 +6,14 @@
     "attack": 48,
     "defense": 65,
     "speed": 43,
-    "moves": [
-      {
-        "name": "Tackle",
-        "type": "Normal",
-        "power": 40,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage."
-      },
-      {
-        "name": "Water Gun",
-        "type": "Water",
-        "power": 40,
-        "accuracy": 100,
-        "effect": "A special attack that deals damage."
-      },
-      {
-        "name": "Tail Whip",
-        "type": "Normal",
-        "power": null,
-        "accuracy": 100,
-        "effect": "Lowers the opponent's Defense by one stage."
-      }
-    ],
+    "moves": [1, 14, 15],
     "status": {
       "currentHP": 44,
       "statusCondition": null,
       "statusMultipliers": {
-        "atk": 1,
-        "def": 1,
-        "speed": 1
+        "attack": 0,
+        "defense": 0,
+        "speed": 0
       }
     }
   }

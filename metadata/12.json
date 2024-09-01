@@ -6,36 +6,14 @@
     "attack": 45,
     "defense": 50,
     "speed": 70,
-    "moves": [
-      {
-        "name": "Gust",
-        "type": "Flying",
-        "power": 40,
-        "accuracy": 100,
-        "effect": "A special attack that deals damage."
-      },
-      {
-        "name": "Confusion",
-        "type": "Psychic",
-        "power": 50,
-        "accuracy": 100,
-        "effect": "A special attack that deals damage with a 10% chance to confuse the opponent."
-      },
-      {
-        "name": "Sleep Powder",
-        "type": "Grass",
-        "power": null,
-        "accuracy": 75,
-        "effect": "Puts the opponent to sleep."
-      }
-    ],
+    "moves": [22, 23, 6],
     "status": {
       "currentHP": 60,
       "statusCondition": null,
       "statusMultipliers": {
-        "atk": 1,
-        "def": 1,
-        "speed": 1
+        "attack": 0,
+        "defense": 0,
+        "speed": 0
       }
     }
   }

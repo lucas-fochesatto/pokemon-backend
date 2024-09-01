@@ -6,36 +6,14 @@
     "attack": 60,
     "defense": 44,
     "speed": 55,
-    "moves": [
-      {
-        "name": "Poison Sting",
-        "type": "Poison",
-        "power": 15,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage with a 30% chance to poison the opponent."
-      },
-      {
-        "name": "Wrap",
-        "type": "Normal",
-        "power": 15,
-        "accuracy": 90,
-        "effect": "A physical attack that deals damage and traps the opponent for 4-5 turns."
-      },
-      {
-        "name": "Glare",
-        "type": "Normal",
-        "power": null,
-        "accuracy": 100,
-        "effect": "Paralyzes the opponent."
-      }
-    ],
+    "moves": [24, 35, 36],
     "status": {
       "currentHP": 35,
       "statusCondition": null,
       "statusMultipliers": {
-        "atk": 1,
-        "def": 1,
-        "speed": 1
+        "attack": 0,
+        "defense": 0,
+        "speed": 0
       }
     }
   }

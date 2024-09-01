@@ -6,36 +6,14 @@
     "attack": 62,
     "defense": 63,
     "speed": 60,
-    "moves": [
-      {
-        "name": "Tackle",
-        "type": "Normal",
-        "power": 40,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage."
-      },
-      {
-        "name": "Razor Leaf",
-        "type": "Grass",
-        "power": 55,
-        "accuracy": 95,
-        "effect": "A physical attack that deals damage with a high critical hit ratio."
-      },
-      {
-        "name": "Sleep Powder",
-        "type": "Grass",
-        "power": null,
-        "accuracy": 75,
-        "effect": "Puts the opponent to sleep."
-      }
-    ],
+    "moves": [1, 4, 6],
     "status": {
       "currentHP": 60,
       "statusCondition": null,
       "statusMultipliers": {
-        "atk": 1,
-        "def": 1,
-        "speed": 1
+        "attack": 0,
+        "defense": 0,
+        "speed": 0
       }
     }
   }

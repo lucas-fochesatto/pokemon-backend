@@ -6,36 +6,14 @@
     "attack": 85,
     "defense": 69,
     "speed": 80,
-    "moves": [
-      {
-        "name": "Poison Jab",
-        "type": "Poison",
-        "power": 80,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage with a 30% chance to poison the opponent."
-      },
-      {
-        "name": "Bite",
-        "type": "Dark",
-        "power": 60,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage with a 30% chance to make the opponent flinch."
-      },
-      {
-        "name": "Glare",
-        "type": "Normal",
-        "power": null,
-        "accuracy": 100,
-        "effect": "Paralyzes the opponent."
-      }
-    ],
+    "moves": [26, 17, 36],
     "status": {
       "currentHP": 60,
       "statusCondition": null,
       "statusMultipliers": {
-        "atk": 1,
-        "def": 1,
-        "speed": 1
+        "attack": 0,
+        "defense": 0,
+        "speed": 0
       }
     }
   }

@@ -6,36 +6,14 @@
     "attack": 81,
     "defense": 60,
     "speed": 97,
-    "moves": [
-      {
-        "name": "Hyper Fang",
-        "type": "Normal",
-        "power": 80,
-        "accuracy": 90,
-        "effect": "A physical attack that deals damage with a 10% chance to make the opponent flinch."
-      },
-      {
-        "name": "Crunch",
-        "type": "Dark",
-        "power": 80,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage with a 20% chance to lower the opponent's Defense by one stage."
-      },
-      {
-        "name": "Quick Attack",
-        "type": "Normal",
-        "power": 40,
-        "accuracy": 100,
-        "effect": "A physical attack that always goes first."
-      }
-    ],
+    "moves": [30, 31, 40],
     "status": {
       "currentHP": 55,
       "statusCondition": null,
       "statusMultipliers": {
-        "atk": 1,
-        "def": 1,
-        "speed": 1
+        "attack": 0,
+        "defense": 0,
+        "speed": 0
       }
     }
   }

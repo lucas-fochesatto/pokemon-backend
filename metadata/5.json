@@ -6,36 +6,14 @@
     "attack": 64,
     "defense": 58,
     "speed": 80,
-    "moves": [
-      {
-        "name": "Scratch",
-        "type": "Normal",
-        "power": 40,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage."
-      },
-      {
-        "name": "Flamethrower",
-        "type": "Fire",
-        "power": 90,
-        "accuracy": 100,
-        "effect": "Deals damage with a 10% chance to burn the opponent."
-      },
-      {
-        "name": "Smokescreen",
-        "type": "Normal",
-        "power": null,
-        "accuracy": 100,
-        "effect": "Lowers the opponent's accuracy by one stage."
-      }
-    ],
+    "moves": [8, 10, 11],
     "status": {
       "currentHP": 58,
       "statusCondition": null,
       "statusMultipliers": {
-        "atk": 1,
-        "def": 1,
-        "speed": 1
+        "attack": 0,
+        "defense": 0,
+        "speed": 0
       }
     }
   }

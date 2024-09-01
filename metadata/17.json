@@ -6,36 +6,14 @@
     "attack": 60,
     "defense": 55,
     "speed": 71,
-    "moves": [
-      {
-        "name": "Wing Attack",
-        "type": "Flying",
-        "power": 60,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage."
-      },
-      {
-        "name": "Quick Attack",
-        "type": "Normal",
-        "power": 40,
-        "accuracy": 100,
-        "effect": "A physical attack that always goes first."
-      },
-      {
-        "name": "Sand Attack",
-        "type": "Ground",
-        "power": null,
-        "accuracy": 100,
-        "effect": "Lowers the opponent's accuracy by one stage."
-      }
-    ],
+    "moves": [12, 40, 28],
     "status": {
       "currentHP": 63,
       "statusCondition": null,
       "statusMultipliers": {
-        "atk": 1,
-        "def": 1,
-        "speed": 1
+        "attack": 0,
+        "defense": 0,
+        "speed": 0
       }
     }
   }

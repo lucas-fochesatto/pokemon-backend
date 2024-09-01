@@ -5,6 +5,7 @@ import { localSigner, provider } from "../ethers.js";
 import { ethers } from "ethers";
 import { INPUTBOX_ABI } from "../utils/inputBoxAbi.js";
 import { bothPlayersMoved, createBattleInstance, determineBattleOutcome, determineMoveOrder, getBattleFromDb, isUserPartOfBattle, loadPokemons, performBattle, processMove, updateBattleInDatabase, updateMove } from "../utils/battleUtils.js";
+import { moveset } from "../utils/moves.js";
 
 export const sendTransaction = async (req, res) => {
   try {
@@ -103,11 +104,17 @@ export const createBattle = async (req, res) => {
     // we need to convert it to an array of pokemon objects
     const makerPokemons = [];
     const makerPokemonsJSON = JSON.parse(maker_pokemons);
-    makerPokemonsJSON.map(pokemon => {
+    
+    makerPokemonsJSON.map((pokemon, index) => {
       makerPokemons.push(pokemons[pokemon-1]);
+      makerPokemons[index].moveDetails = [];
+    
+      makerPokemons[index].moves.map(move => {
+        makerPokemons[index].moveDetails.push(moveset[move]);
+      })
     });
 
-    const newBattle = new Battle(null, maker, null, makerPokemons, null, null, null, null, null, 'waiting', null);
+    const newBattle = new Battle(null, maker, null, JSON.stringify(makerPokemons), null, null, null, null, null, 'waiting', null);
 
     const insert = db.prepare('INSERT INTO battles (maker, maker_pokemons, status) VALUES (?, ?, ?)');
     
@@ -152,16 +159,21 @@ export const getBattleById = async (req, res) => {
 
 export const joinBattle = async (req, res) => {
   try {
-    const { battleId, opponent, opponent_pokemons } = req.body;
+    const { battleId, taker, taker_pokemons } = req.body;
 
-    let opponentPokemonsHP = [];
-    const opponentPokemonsJSON = JSON.parse(opponent_pokemons);
+    let takerPokemons = [];
+    const takerPokemonsJSON = JSON.parse(taker_pokemons);
 
-    opponentPokemonsJSON.map(pokemon => {
-      opponentPokemonsHP.push(pokemons[pokemon-1].hp);
+    takerPokemonsJSON.map((pokemon, index) => {
+      takerPokemons.push(pokemons[pokemon-1]);
+      takerPokemons[index].moveDetails = [];
+    
+      takerPokemons[index].moves.map(move => {
+        takerPokemons[index].moveDetails.push(moveset[move]);
+      })
     });
 
-    db.run('UPDATE battles SET taker = ?, taker_pokemons = ?, taker_hp = ?, status = ? WHERE id = ?', [opponent, opponent_pokemons, JSON.stringify(opponentPokemonsHP), 'ongoing', battleId], (err) => {
+    db.run('UPDATE battles SET taker = ?, taker_pokemons = ?, status = ? WHERE id = ?', [taker, JSON.stringify(takerPokemons), 'ongoing', battleId], (err) => {
       if (err) {
         throw err;
       }
@@ -181,6 +193,8 @@ export const makeMove = async (req, res) => {
     if (!row) return res.status(404).json({ message: 'Battle not found' });
 
     const battle = createBattleInstance(row);
+    console.log(battle);
+    return res.status(200);
     
     if (!isUserPartOfBattle(battle, userFid)) {
       return res.status(400).json({ message: 'User is not part of the battle' });

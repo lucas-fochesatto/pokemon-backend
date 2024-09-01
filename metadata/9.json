@@ -6,36 +6,14 @@
     "attack": 83,
     "defense": 100,
     "speed": 78,
-    "moves": [
-      {
-        "name": "Hydro Pump",
-        "type": "Water",
-        "power": 110,
-        "accuracy": 80,
-        "effect": "A powerful water attack that deals damage."
-      },
-      {
-        "name": "Bite",
-        "type": "Dark",
-        "power": 60,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage with a 30% chance to make the opponent flinch."
-      },
-      {
-        "name": "Skull Bash",
-        "type": "Normal",
-        "power": 130,
-        "accuracy": 100,
-        "effect": "The user tucks in its head, then attacks on the next turn."
-      }
-    ],
+    "moves": [18, 17, 19],
     "status": {
       "currentHP": 79,
       "statusCondition": null,
       "statusMultipliers": {
-        "atk": 1,
-        "def": 1,
-        "speed": 1
+        "attack": 0,
+        "defense": 0,
+        "speed": 0
       }
     }
   }

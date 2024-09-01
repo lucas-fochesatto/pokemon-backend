@@ -1,6 +1,7 @@
-import db from "../database";
-import Battle from "../Models/Battle";
-import { typeMatchup } from "./typeMatchup";
+import db from "../database.js";
+import Battle from "../Models/Battle.js";
+import { moveset } from "./moves.js";
+import { typeMatchup } from "./typeMatchup.js";
 
 export const getBattleFromDb = async (battleId) => {
   return new Promise((resolve, reject) => {
@@ -12,7 +13,7 @@ export const getBattleFromDb = async (battleId) => {
 }
 
 export const createBattleInstance = (row) => {
-  return new Battle(row.id, row.maker, row.taker, row.maker_pokemons, row.maker_active_mon, row.taker_pokemons, row.taker_active_mon, row.maker_move, row.taker_move, row.status, row.battle_log);
+  return new Battle(row.id, row.maker, row.taker, JSON.parse(row.maker_pokemons), JSON.parse(row.maker_battling_pokemons), JSON.parse(row.taker_pokemons), JSON.parse(row.taker_battling_pokemons), row.maker_move, row.taker_move, row.status, JSON.parse(row.battle_log));
 }
 
 export const isUserPartOfBattle = (battle, userId) => {
@@ -23,22 +24,31 @@ export const bothPlayersMoved = (battle) => {
   return battle.maker_move && battle.taker_move;
 }
 
+const arePrioritiesEqual = (maker_move, taker_move) => {
+  return moveset[maker_move].priority == moveset[taker_move].priority;
+}
+
+const compareSpeeds = (battle) => {
+  const { maker_pokemons, taker_pokemons, maker_battling_pokemons, taker_battling_pokemons } = battle;
+
+  const makerSelectedPokemon = maker_pokemons[maker_battling_pokemons[0]];
+  const takerSelectedPokemon = taker_pokemons[taker_battling_pokemons[0]];
+
+  if (makerSelectedPokemon.speed > takerSelectedPokemon.speed) {
+    return 'maker';
+  } else if (takerSelectedPokemon.speed > makerSelectedPokemon.speed) {
+    return 'taker';
+  } else {
+    return Math.random() < 0.5 ? 'maker' : 'taker';
+  }
+}
+
 export const updateMove = (battle, userId, move) => {
   if (battle.maker === userId) {
     battle.maker_move = move;
   } else {
     battle.taker_move = move;
   }
-}
-
-export const loadPokemons = (battle) => {
-  const makerPokemons = JSON.parse(battle.maker_pokemons);
-  const takerPokemons = JSON.parse(battle.taker_pokemons);
-
-  const makerPokemon = makerPokemons[battle.maker_active_mon];
-  const takerPokemon = takerPokemons[battle.taker_active_mon];
-
-  return { makerPokemons, takerPokemons, makerPokemon, takerPokemon };
 }
 
 export const processMove = (battle, attacker, move, defender) => {
@@ -52,33 +62,17 @@ export const processMove = (battle, attacker, move, defender) => {
   }
 }
 
-export const determineMoveOrder = (makerPokemon, takerPokemon) => {
-  if (makerPokemon.speed > takerPokemon.speed) {
-    return {
-      firstAttacker: makerPokemon,
-      firstMove: makerPokemon.moves[0],
-      secondAttacker: takerPokemon,
-      secondMove: takerPokemon.moves[0]
-    };
-  } else if (takerPokemon.speed > makerPokemon.speed) {
-    return {
-      firstAttacker: takerPokemon,
-      firstMove: takerPokemon.moves[0],
-      secondAttacker: makerPokemon,
-      secondMove: makerPokemon.moves[0]
-    };
+export const determineMoveOrder = (battle) => {
+  const { maker_move, taker_move } = battle;
+
+  // first, compare move priorities
+  if(arePrioritiesEqual(maker_move, taker_move)) {
+    // if priorities are equal, compare speeds
+    return compareSpeeds(battle);
   } else {
-    return Math.random() < 0.5 ? {
-      firstAttacker: makerPokemon,
-      firstMove: makerPokemon.moves[0],
-      secondAttacker: takerPokemon,
-      secondMove: takerPokemon.moves[0]
-    } : {
-      firstAttacker: takerPokemon,
-      firstMove: takerPokemon.moves[0],
-      secondAttacker: makerPokemon,
-      secondMove: makerPokemon.moves[0]
-    };
+    if(verifySwapMove(maker_move)) return 'maker-swap'
+    if(verifySwapMove(taker_move)) return 'taker-swap'
+    return maker_move.priority > taker_move.priority ? 'maker' : 'taker';
   }
 }
 
@@ -93,33 +87,17 @@ export const createBattleLog = (attacker, move, defender, damage) => {
 }
 
 // Determine the outcome of the battle
-export const determineBattleOutcome = (battle, makerPokemons, takerPokemons) => {
-  /* if (makerPokemon.hp <= 0 && takerPokemon.hp <= 0) {
-    battle.battle_log.push({ message: 'It\'s a tie!' }); //just for test purposes
-    battle.status = 'ended';
-  } else if (makerPokemon.hp <= 0) {
-    battle.battle_log.push({ message: 'Taker wins!' });
-    battle.status = 'ended';
-  } else if (takerPokemon.hp <= 0) {
-    battle.battle_log.push({ message: 'Maker wins!' });
-    battle.status = 'ended';
-  } */
- 
-  // iterate over the pokemons and check if everyone has <= 0 hp
+export const determineBattleOutcome = (battle) => {
+  // iterate over battling pokemons and check if everyone has <= 0 hp
   let makerAlive = false;
   let takerAlive = false;
-  
-  for (let i = 0; i < 3; i++) {
-    if (makerPokemons[i].hp > 0) {
-      makerAlive = true;
-      break;
-    }
-  }
 
-  for (let i = 0; i < 3; i++) {
-    if (takerPokemons[i].hp > 0) {
+  for(let i = 0; i < 2; i++) {
+    if(battle.taker_pokemons[battle.taker_battling_pokemons[i]].hp > 0) {
       takerAlive = true;
-      break;
+    }
+    if(battle.maker_pokemons[battle.maker_battling_pokemons[i]].hp > 0) {
+      makerAlive = true;
     }
   }
 
@@ -170,30 +148,27 @@ export const calculateDamage = (attacker, move, defender) => {
   return damage;
 }
 
-function updatePokemonHp(pokemons, activeMonIndex, updatedPokemon) {
-  pokemons[activeMonIndex] = updatedPokemon;
+const verifySwapMove = (move) => {
+  return moveset[move].id == 0;
 }
 
 export const performBattle = async (battle) => {
-  try {
-    const { makerPokemons, takerPokemons, makerPokemon, takerPokemon } = loadPokemons(battle);
-    
-    const { firstAttacker, firstMove, secondAttacker, secondMove } = determineMoveOrder(makerPokemon, takerPokemon);
+  const next = determineMoveOrder(battle);
+  const { maker_move, taker_move } = battle;
 
-    battle.battle_log = battle.battle_log || [];
+  if(next == 'maker-swap') {
+    moveset[0].swapMove('maker', battle);
+  } else if(next == 'taker-swap') {
+    moveset[0].swapMove('taker', battle);
+  } else if(next == 'maker') {
+    const attacker = battle.maker_pokemons[battle.maker_battling_pokemons[0]];
+    const defender = battle.taker_pokemons[battle.taker_battling_pokemons[0]];
 
-    processMove(battle, firstAttacker, firstMove, secondAttacker);
-    if (secondAttacker.hp > 0) {
-      processMove(battle, secondAttacker, secondMove, firstAttacker);
-    }
+    moveset[maker_move].executeMove(attacker, defender, battle);
+  } else if(next == 'taker') {
+    const attacker = battle.taker_pokemons[battle.taker_battling_pokemons[0]];
+    const defender = battle.maker_pokemons[battle.maker_battling_pokemons[0]];
 
-    updatePokemonHp(makerPokemons, battle.maker_active_mon, makerPokemon);
-    updatePokemonHp(takerPokemons, battle.taker_active_mon, takerPokemon);
-
-    determineBattleOutcome(battle, makerPokemon, takerPokemon);
-
-    await updateBattleInDatabase(battle, makerPokemons, takerPokemons);
-  } catch (error) {
-    console.error('Error performing battle:', error.message);
+    moveset[taker_move].executeMove(attacker, defender, battle);
   }
 }

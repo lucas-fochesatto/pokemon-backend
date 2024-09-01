@@ -6,36 +6,14 @@
     "attack": 90,
     "defense": 65,
     "speed": 100,
-    "moves": [
-      {
-        "name": "Drill Peck",
-        "type": "Flying",
-        "power": 80,
-        "accuracy": 100,
-        "effect": "A physical attack that deals damage."
-      },
-      {
-        "name": "Fury Attack",
-        "type": "Normal",
-        "power": 15,
-        "accuracy": 85,
-        "effect": "A physical attack that hits 2-5 times in a row."
-      },
-      {
-        "name": "Agility",
-        "type": "Psychic",
-        "power": null,
-        "accuracy": null,
-        "effect": "Raises the user's Speed by two stages."
-      }
-    ],
+    "moves": [34, 33, 27],
     "status": {
       "currentHP": 65,
       "statusCondition": null,
       "statusMultipliers": {
-        "atk": 1,
-        "def": 1,
-        "speed": 1
+        "attack": 0,
+        "defense": 0,
+        "speed": 0
       }
     }
   }
