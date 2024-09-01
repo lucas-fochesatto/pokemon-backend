@@ -4,7 +4,7 @@ import pokemons from "../utils/pokemons.js";
 import { localSigner, provider } from "../ethers.js";
 import { BigNumber, ethers } from "ethers";
 import { INPUTBOX_ABI } from "../utils/inputBoxAbi.js";
-import { bothPlayersMoved, createBattleInstance, getBattleFromDb, isUserPartOfBattle, performBattle, updateMove } from "../utils/battleUtils.js";
+import { bothPlayersMoved, createBattleInstance, getBattleFromDb, isUserPartOfBattle, performBattle, updateBattleInDatabase, updateMove } from "../utils/battleUtils.js";
 import { moveset } from "../utils/moves.js";
 
 export const sendTransaction = async (req, res) => {
@@ -263,14 +263,24 @@ export const makeMove = async (req, res) => {
       return res.status(400).json({ message: 'Both players have already moved' });
     }
 
+    // check if pokemon has the move
+    const agent = battle.maker === userFid ? 'maker' : 'taker';
+    const pokemon = battle.maker_pokemons[battle.maker_battling_pokemons[0]]
+    const moveDetails = pokemon.moveDetails.find(m => m.name === move);
+    if (!moveDetails) {
+      return res.status(400).json({ message: 'Pokemon does not have the move' });
+    }
+
     updateMove(battle, userFid, move);
 
     if (bothPlayersMoved(battle)) {
       console.log('performing battle...');
-      await performBattle(battle);
+      performBattle(battle);
     }
 
-    res.status(200).json({ message: 'Move made successfully' });
+    await updateBattleInDatabase(battle);
+
+    res.status(200).json({ message: 'Battle status changed', battle });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'An error occurred' });
