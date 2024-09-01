@@ -1,24 +1,21 @@
-{ 
-    "id": "9", 
-
-    "name": "BLASTOISE",
-
-    "type": "WATER",
-
+{
+    "id": "9",
+    "name": "Blastoise",
+    "type": ["Water"],
     "hp": 79,
-
     "attack": 83,
-
     "defense": 100,
-
     "speed": 78,
-
-    "atk1": "TACKLE,NORMAL",
-
-    "atk2": "TAIL WHIP,NORMAL",
-
-    "atk3": "WATER GUN,WATER",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmS78pGCYAVST9bc6CJtcHUTgi7JtYGsL7LExS5bVA7MHi"
-
-}
+    "moves": [18, 17, 19],
+    "status": {
+      "currentHP": 79,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "attack": 0,
+        "defense": 0,
+        "speed": 0,
+        "evasion": 0,
+        "accuracy": 0
+      }
+    }
+  }

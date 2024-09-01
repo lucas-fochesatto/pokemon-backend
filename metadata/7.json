@@ -1,24 +1,21 @@
-{ 
+{
     "id": "7",
-
-    "name": "SQUIRTLE",
-
-    "type": "WATER",
-
+    "name": "Squirtle",
+    "type": ["Water"],
     "hp": 44,
-
     "attack": 48,
-
     "defense": 65,
-
     "speed": 43,
-
-    "atk1": "TACKLE,NORMAL",
-
-    "atk2": "TAIL WHIP,NORMAL",
-
-    "atk3": "WATER GUN,WATER",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmRvS2v5dWrUMfxWTPBiF2oJp1oHPdmLXU1676yw1jmYGL"
-
-}
+    "moves": [1, 14, 15],
+    "status": {
+      "currentHP": 44,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "attack": 0,
+        "defense": 0,
+        "speed": 0,
+        "evasion": 0,
+        "accuracy": 0
+      }
+    }
+  }

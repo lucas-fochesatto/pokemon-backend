@@ -1,24 +1,21 @@
-{ 
+{
     "id": "2",
-
-    "name": "IVYSAUR",
-
-    "type": "GRASS,POISON",
-
+    "name": "Ivysaur",
+    "type": ["Grass", "Poison"],
     "hp": 60,
-
     "attack": 62,
-
     "defense": 63,
-
     "speed": 60,
-
-    "atk1": "GROWL,NORMAL",
-
-    "atk2": "GROWTH,NORMAL",
-
-    "atk3": "TACKLE,NORMAL",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/Qmbh9pPaKcQdDy38JELGa7i1t36Sb9CDJkhwvhSwQ219Wg"
-
-}
+    "moves": [1, 4, 6],
+    "status": {
+      "currentHP": 60,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "attack": 0,
+        "defense": 0,
+        "speed": 0,
+        "evasion": 0,
+        "accuracy": 0
+      }
+    }
+  }

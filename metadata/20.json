@@ -1,24 +1,21 @@
-{ 
+{
     "id": "20",
-
-    "name": "RATICATE",
-
-    "type": "NORMAL",
-
+    "name": "Raticate",
+    "type": ["Normal"],
     "hp": 55,
-
     "attack": 81,
-
     "defense": 60,
-
     "speed": 97,
-
-    "atk1": "FOCUS ENERGY,NORMAL",
-
-    "atk2": "QUICK ATTACK,NORMAL",
-
-    "atk3": "SCARY FACE,NORMAL",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmPsR45qfpvfTwETM3d7vp5QpJ6haN1SfkdL2VUnQrzBDK"
-
-}
+    "moves": [30, 31, 40],
+    "status": {
+      "currentHP": 55,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "attack": 0,
+        "defense": 0,
+        "speed": 0,
+        "evasion": 0,
+        "accuracy": 0
+      }
+    }
+  }

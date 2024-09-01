@@ -1,24 +1,21 @@
-{ 
+{
     "id": "24",
-
-    "name": "ARBOK",
-
-    "type": "POISON",
-
+    "name": "Arbok",
+    "type": ["Poison"],
     "hp": 60,
-
-    "attack": 95,
-
+    "attack": 85,
     "defense": 69,
-
     "speed": 80,
-
-    "atk1": "BITE,DARK",
-
-    "atk2": "FIRE FANG,FIRE",
-
-    "atk3": "ICE FANG,ICE",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmPNQ9mLwStVKwCcZmC8hE8Sqn8jqBZU1q5YgDVqFW2LPc"
-
-}
+    "moves": [26, 17, 36],
+    "status": {
+      "currentHP": 60,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "attack": 0,
+        "defense": 0,
+        "speed": 0,
+        "evasion": 0,
+        "accuracy": 0
+      }
+    }
+  }

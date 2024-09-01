@@ -4,6 +4,8 @@ import pokemons from "../utils/pokemons.js";
 import { localSigner, provider } from "../ethers.js";
 import { BigNumber, ethers } from "ethers";
 import { INPUTBOX_ABI } from "../utils/inputBoxAbi.js";
+import { bothPlayersMoved, createBattleInstance, getBattleFromDb, isUserPartOfBattle, performBattle, updateMove } from "../utils/battleUtils.js";
+import { moveset } from "../utils/moves.js";
 
 export const sendTransaction = async (req, res) => {
   try {
@@ -103,19 +105,26 @@ export const createBattle = async (req, res) => {
   try {
     const { maker, maker_pokemons } = req.body;
 
-    let makerPokemonsHP = [];
+    // maker_pokemons is an array of pokemon IDs
+    // we need to convert it to an array of pokemon objects
+    const makerPokemons = [];
     const makerPokemonsJSON = JSON.parse(maker_pokemons);
-
-    makerPokemonsJSON.map(pokemon => {
-      makerPokemonsHP.push(pokemons[pokemon-1].hp);
+    
+    makerPokemonsJSON.map((pokemon, index) => {
+      makerPokemons.push(pokemons[pokemon-1]);
+      makerPokemons[index].moveDetails = [];
+    
+      makerPokemons[index].moves.map(move => {
+        makerPokemons[index].moveDetails.push(moveset[move]);
+      })
     });
 
-    const newBattle = new Battle(null, maker, null, maker_pokemons, null, JSON.stringify(makerPokemonsHP), null, 'waiting');
+    const newBattle = new Battle(null, maker, null, JSON.stringify(makerPokemons), null, null, null, null, null, 'waiting', 0, null);
 
-    const insert = db.prepare('INSERT INTO battles (maker, maker_pokemons, maker_hp, status) VALUES (?, ?, ?, ?)');
+    const insert = db.prepare('INSERT INTO battles (maker, maker_pokemons, status) VALUES (?, ?, ?)');
     
     // Executa a inserção e obtém o ID do registro recém inserido
-    insert.run(newBattle.maker, newBattle.maker_pokemons, newBattle.maker_hp, newBattle.status, function(err) {
+    insert.run(newBattle.maker, newBattle.maker_pokemons, newBattle.status, function(err) {
       if (err) {
         return res.status(500).json({ message: 'Error creating battle', error: err.message });
       }
@@ -156,17 +165,22 @@ export const getBattleById = async (req, res) => {
 export const joinBattle = async (req, res) => {
   try {
     const { battleId, taker, taker_pokemons } = req.body;
+    
+    let takerPokemons = [];
+    const takerPokemonsJSON = JSON.parse(taker_pokemons);
 
     console.log('Receieved taker', req.body);
 
-    let opponentPokemonsHP = [];
-    const opponentPokemonsJSON = JSON.parse(taker_pokemons);
-
-    opponentPokemonsJSON.map(pokemon => {
-      opponentPokemonsHP.push(pokemons[pokemon-1].hp);
+    takerPokemonsJSON.map((pokemon, index) => {
+      takerPokemons.push(pokemons[pokemon-1]);
+      takerPokemons[index].moveDetails = [];
+    
+      takerPokemons[index].moves.map(move => {
+        takerPokemons[index].moveDetails.push(moveset[move]);
+      })
     });
 
-    db.run('UPDATE battles SET taker = ?, taker_pokemons = ?, taker_hp = ?, status = ? WHERE id = ?', [taker, taker_pokemons, JSON.stringify(opponentPokemonsHP), 'ongoing', battleId], (err) => {
+    db.run('UPDATE battles SET taker = ?, taker_pokemons = ?, status = ? WHERE id = ?', [taker, JSON.stringify(takerPokemons), 'ongoing', battleId], (err) => {
       if (err) {
         throw err;
       }
@@ -177,6 +191,89 @@ export const joinBattle = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+  }
+}
+
+export const selectPokemons = async (req, res) => {
+  const { battleId, userFid, pokemons } = req.body;
+
+  const row = await getBattleFromDb(battleId);
+  if (!row) return res.status(404).json({ message: 'Battle not found' });
+
+  const battle = createBattleInstance(row);
+
+  if (!isUserPartOfBattle(battle, userFid)) {
+    return res.status(400).json({ message: 'User is not part of the battle' });
+  }
+
+  if (battle.status !== 'waiting') {
+    return res.status(400).json({ message: 'Battle has already started' });
+  }
+
+  if (battle.maker === userFid) {
+    // verify if the user has the pokemons
+    const makerPokemons = JSON.parse(battle.maker_pokemons);
+    for (let i = 0; i < pokemons.length; i++) {
+      if (!makerPokemons.find(pokemon => pokemon.id === pokemons[i])) {
+        return res.status(400).json({ message: 'User does not have the pokemons' });
+      }
+    }
+    battle.maker_battling_pokemons = pokemons;
+  } else {
+    // verify if the user has the pokemons
+    const takerPokemons = JSON.parse(battle.taker_pokemons);
+    for (let i = 0; i < pokemons.length; i++) {
+      if (!takerPokemons.find(pokemon => pokemon.id === pokemons[i])) {
+        return res.status(400).json({ message: 'User does not have the pokemons' });
+      }
+    }
+    battle.taker_battling_pokemons = pokemons;
+  }
+
+  const executor = battle.maker === userFid ? 'maker' : 'taker';
+  const column = `${executor}_battling_pokemons`;
+  db.run(`UPDATE battles SET ${column} = ? WHERE id = ?`, [JSON.stringify(pokemons), battleId], (err) => {
+    if (err) {
+      return res.status(500).json({ message: 'An error occurred' });
+    }
+
+    res.status(200).json({ message: 'Pokemons selected successfully' });
+  });
+}
+
+export const makeMove = async (req, res) => {
+  try {
+    const { battleId, userFid, move } = req.body;
+
+    const row = await getBattleFromDb(battleId);
+    if (!row) return res.status(404).json({ message: 'Battle not found' });
+
+    const battle = createBattleInstance(row);
+    console.log(battle);
+    
+    if (!isUserPartOfBattle(battle, userFid)) {
+      return res.status(400).json({ message: 'User is not part of the battle' });
+    }
+
+    if (battle.status === 'ended') {
+      return res.status(400).json({ message: 'Battle has already ended' });
+    }
+
+    if (bothPlayersMoved(battle)) {
+      return res.status(400).json({ message: 'Both players have already moved' });
+    }
+
+    updateMove(battle, userFid, move);
+
+    if (bothPlayersMoved(battle)) {
+      console.log('performing battle...');
+      await performBattle(battle);
+    }
+
+    res.status(200).json({ message: 'Move made successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'An error occurred' });
   }
 }
 

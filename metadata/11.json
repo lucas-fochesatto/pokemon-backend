@@ -1,24 +1,21 @@
-{ 
+{
     "id": "11",
-
-    "name": "METAPOD",
-
-    "type": "BUG",
-
+    "name": "Metapod",
+    "type": ["Bug"],
     "hp": 50,
-
     "attack": 20,
-
     "defense": 55,
-
     "speed": 30,
-
-    "atk1": "HARDEN,NORMAL",
-
-    "atk2": "",
-
-    "atk3": "",
-
-    "image": "https://crimson-peaceful-narwhal-967.mypinata.cloud/ipfs/QmZh3UAWPCDJbhyVHTyfbUeqfFHscCvPR6CmK2SKJ1hRkS"
-
-}
+    "moves": [21, 21, 21],
+    "status": {
+      "currentHP": 50,
+      "statusCondition": null,
+      "statusMultipliers": {
+        "attack": 0,
+        "defense": 0,
+        "speed": 0,
+        "evasion": 0,
+        "accuracy": 0
+      }
+    }
+  }

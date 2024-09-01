@@ -10,13 +10,13 @@ const db = new sqlite3.Database('./database.db', (err) => {
 });
 
 db.serialize(() => {
-  db.run('CREATE TABLE IF NOT EXISTS battles (id INTEGER PRIMARY KEY, maker TEXT, taker TEXT, maker_pokemons TEXT, taker_pokemons TEXT, maker_hp TEXT, taker_hp TEXT, status TEXT)')
-  db.run('CREATE TABLE IF NOT EXISTS pokemons (id INTEGER PRIMARY KEY, name TEXT, type TEXT, hp INTEGER, attack INTEGER, defense INTEGER, speed INTEGER, atk1 TEXT, atk2 TEXT, atk3 TEXT, image TEXT)')
+  db.run('CREATE TABLE IF NOT EXISTS battles (id INTEGER PRIMARY KEY, maker INTEGER, taker INTEGER, maker_pokemons TEXT, maker_battling_pokemons TEXT, taker_pokemons TEXT, taker_battling_pokemons TEXT, maker_move TEXT, taker_move TEXT, status TEXT, current_turn INTEGER, battle_log TEXT)')
+  db.run('CREATE TABLE IF NOT EXISTS pokemons (id INTEGER PRIMARY KEY, name TEXT, type TEXT, hp INTEGER, attack INTEGER, defense INTEGER, speed INTEGER, moves TEXT, status TEXT)')
   db.run('CREATE TABLE IF NOT EXISTS hashes (hash TEXT PRIMARY KEY)')
 
-  const insert = db.prepare('INSERT OR REPLACE INTO pokemons (id, name, type, hp, attack, defense, speed, atk1, atk2, atk3, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+  const insert = db.prepare('INSERT OR REPLACE INTO pokemons (id, name, type, hp, attack, defense, speed, moves, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
   pokemons.forEach(pokemon => {
-    insert.run(pokemon.id, pokemon.name, pokemon.type, pokemon.hp, pokemon.attack, pokemon.defense, pokemon.speed, pokemon.atk1, pokemon.atk2, pokemon.atk3, pokemon.image)
+    insert.run(pokemon.id, pokemon.name, pokemon.type, pokemon.hp, pokemon.attack, pokemon.defense, pokemon.speed, pokemon.moves, pokemon.status)
   })
   insert.finalize()
 })
