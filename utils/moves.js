@@ -42,16 +42,18 @@ class Move {
     const accuracyMultiplier = this.getStatMultiplier(attacker.status.statusMultipliers.accuracy);
     const evasionMultiplier = this.getStatMultiplier(defender.status.statusMultipliers.evasion);
 
+    console.log(accuracyMultiplier, evasionMultiplier);
+
     // Effective accuracy after applying multipliers
     const effectiveAccuracy = this.accuracy * (accuracyMultiplier / evasionMultiplier);
-    if (Math.random() * 100 <= this.effectiveAccuracy) {
+    if (Math.random() * 100 <= effectiveAccuracy) {
       this.onExecute(agent, battle, attacker, defender);
     } else {
       battle.battle_log.push(`${this.name} missed!`);
     }
   }
 
-  dealDamage(agent, battle, attacker, defender) {
+  dealDamage(agent, battle, attacker, defender, critChance = 0.0625) {
     const modifier = typeMatchup[this.type][defender.type[0]] * (defender.type[1] ? typeMatchup[this.type][defender.type[1]] : 1);
 
     console.log(attacker, defender);
@@ -81,12 +83,12 @@ class Move {
     const damage = (isCrit + 1) * Math.ceil(
       Math.ceil(
         Math.ceil(
-          Math.ceil((2 * (attacker.level || 50) / 5 + 2) * this.power * (attacker.attack * atkMultiplier / defender.defense * defMultiplier) / 50) + 2
+          Math.ceil((2 * (attacker.level || 25) / 5 + 2) * this.power * (attacker.attack * atkMultiplier / defender.defense * defMultiplier) / 50) + 2
         ) * stab * modifier
       )
     );
   
-    defender.hp -= damage;
+    defender.status.currentHP -= damage;
     battle.battle_log.push(`${defender.name} has taken ${damage} damage!`);
     isCrit && battle.battle_log.push('Critical hit!');
 
@@ -98,7 +100,7 @@ class Move {
   }
 
   statsMultiplier(pokemon, stat, amount, battle) {
-    pokemon.status[stat] += amount;
+    pokemon.status.statusMultipliers[stat] += amount;
     battle.battle_log.push(`${pokemon.name}'s ${stat} was ${amount > 0 ? 'raised' : 'lowered'}!`);
   }
 
