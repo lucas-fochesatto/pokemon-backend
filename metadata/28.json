@@ -1,14 +1,14 @@
 {
-    "id": "11",
-    "name": "Metapod",
-    "type": ["Bug"],
-    "hp": 50,
-    "attack": 20,
-    "defense": 55,
-    "speed": 30,
-    "moves": [100, 96, 94],
+    "id": "28",
+    "name": "Sandslash",
+    "type": ["Ground"],
+    "hp": 75,
+    "attack": 100,
+    "defense": 110,
+    "speed": 65,
+    "moves": [28, 8, 20],
     "status": {
-      "currentHP": 50,
+      "currentHP": 75,
       "statusCondition": null,
       "statusMultipliers": {
         "attack": 0,
@@ -19,3 +19,4 @@
       }
     }
   }
+  

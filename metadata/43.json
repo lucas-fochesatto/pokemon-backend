@@ -1,14 +1,14 @@
 {
-    "id": "11",
-    "name": "Metapod",
-    "type": ["Bug"],
-    "hp": 50,
-    "attack": 20,
+    "id": "43",
+    "name": "Oddish",
+    "type": ["Grass", "Poison"],
+    "hp": 45,
+    "attack": 50,
     "defense": 55,
     "speed": 30,
-    "moves": [100, 96, 94],
+    "moves": [15, 21, 38],
     "status": {
-      "currentHP": 50,
+      "currentHP": 45,
       "statusCondition": null,
       "statusMultipliers": {
         "attack": 0,
@@ -19,3 +19,4 @@
       }
     }
   }
+  

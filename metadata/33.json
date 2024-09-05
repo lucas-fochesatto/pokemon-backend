@@ -1,14 +1,14 @@
 {
-    "id": "11",
-    "name": "Metapod",
-    "type": ["Bug"],
-    "hp": 50,
-    "attack": 20,
-    "defense": 55,
-    "speed": 30,
-    "moves": [100, 96, 94],
+    "id": "33",
+    "name": "Nidorino",
+    "type": ["Poison"],
+    "hp": 61,
+    "attack": 72,
+    "defense": 57,
+    "speed": 65,
+    "moves": [33, 24, 3],
     "status": {
-      "currentHP": 50,
+      "currentHP": 61,
       "statusCondition": null,
       "statusMultipliers": {
         "attack": 0,
@@ -19,3 +19,4 @@
       }
     }
   }
+  

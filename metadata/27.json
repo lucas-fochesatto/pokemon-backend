@@ -1,12 +1,12 @@
 {
-    "id": "11",
-    "name": "Metapod",
-    "type": ["Bug"],
+    "id": "27",
+    "name": "Sandshrew",
+    "type": ["Ground"],
     "hp": 50,
-    "attack": 20,
-    "defense": 55,
-    "speed": 30,
-    "moves": [100, 96, 94],
+    "attack": 75,
+    "defense": 85,
+    "speed": 40,
+    "moves": [8, 28, 20],
     "status": {
       "currentHP": 50,
       "statusCondition": null,
@@ -19,3 +19,4 @@
       }
     }
   }
+  
