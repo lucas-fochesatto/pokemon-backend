@@ -1,6 +1,6 @@
 import { typeMatchup } from "./typeMatchup.js";
 
-class Move {
+export class Move {
   constructor(id, name, type, power, accuracy, effect, onExecute, priority = 1) {
     this.id = id;
     this.name = name;
@@ -12,21 +12,18 @@ class Move {
     this.priority = priority;
   }
 
+  // new quick game multiplier logic
   getStatMultiplier(stage) {
     const multipliers = {
-      "-6": 0.25,
-      "-5": 0.33,
-      "-4": 0.4,
-      "-3": 0.5,
-      "-2": 0.66,
+      "-4": 0.125,
+      "-3": 0.25,
+      "-2": 0.5,
       "-1": 0.75,
       "0": 1,
       "1": 1.5,
-      "2": 2,
-      "3": 2.5,
-      "4": 3,
-      "5": 3.5,
-      "6": 4
+      "2": 2.25,
+      "3": 3,
+      "4": 4.5
     };
     return multipliers[stage.toString()] || 1;
   }
@@ -42,11 +39,9 @@ class Move {
     const accuracyMultiplier = this.getStatMultiplier(attacker.status.statusMultipliers.accuracy);
     const evasionMultiplier = this.getStatMultiplier(defender.status.statusMultipliers.evasion);
 
-    console.log(accuracyMultiplier, evasionMultiplier);
-
     // Effective accuracy after applying multipliers
     const effectiveAccuracy = this.accuracy * (accuracyMultiplier / evasionMultiplier);
-    if (Math.random() * 100 <= effectiveAccuracy) {
+    if (Math.random() * 100 <= effectiveAccuracy || this.accuracy == null) { // null means move will always hit
       this.onExecute(agent, battle, attacker, defender);
     } else {
       battle.battle_log.push(`${this.name} missed!`);
@@ -79,28 +74,70 @@ class Move {
     const damage = (isCrit + 1) * Math.ceil(
       Math.ceil(
         Math.ceil(
-          Math.ceil((2 * (attacker.level || 25) / 5 + 2) * this.power * (attacker.attack * atkMultiplier / defender.defense * defMultiplier) / 50) + 2
+          Math.ceil((2 * (attacker.level || 16) / 5 + 2) * this.power * (attacker.attack * atkMultiplier / defender.defense * defMultiplier) / 50) + 2
         ) * stab * modifier
       )
     );
   
     defender.status.currentHP -= damage;
     battle.battle_log.push(`${defender.name} has taken ${damage} damage!`);
-    isCrit && battle.battle_log.push('Critical hit!');
+    isCrit && battle.battle_log.push("It\'s a critical hit!");
 
     return damage;
   }
   
+  multiHitDamage(agent, battle, attacker, defender, minHits, maxHits) {
+    const hits = Math.floor(Math.random() * (maxHits - minHits + 1)) + minHits;
+    for (let i = 0; i < hits; i++) {
+      this.dealDamage(agent, battle, attacker, defender);
+    }
+    battle.battle_log.push(`${attacker.name} hit ${hits} times!`);
+  }
+
   swapMove(owner, battle) {
     this.onExecute(owner, battle);
   }
 
   statsMultiplier(pokemon, stat, amount, battle) {
-    pokemon.status.statusMultipliers[stat] += amount;
-    battle.battle_log.push(`${pokemon.name}'s ${stat} was ${amount > 0 ? 'raised' : 'lowered'}!`);
+    const currentStat = pokemon.status.statusMultipliers[stat];
+    const newStat = currentStat + amount;
+  
+    if (newStat > 4) {
+      pokemon.status.statusMultipliers[stat] = 4;
+      battle.battle_log.push(`${pokemon.name}'s ${stat} can't go any higher!`);
+    } else if (newStat < -4) {
+      pokemon.status.statusMultipliers[stat] = -4;
+      battle.battle_log.push(`${pokemon.name}'s ${stat} can't go any lower!`);
+    } else if ((currentStat >= 3 && amount > 0) || (currentStat <= -3 && amount < 0)) {
+      // Cap the stat
+      pokemon.status.statusMultipliers[stat] = amount > 0 ? 4 : -4;
+      battle.battle_log.push(`${pokemon.name}'s ${stat} was ${amount > 0 ? 'maxed out' : 'minimized'}!`);
+    } else {
+      // Apply the amount normally if within bounds
+      pokemon.status.statusMultipliers[stat] = newStat;
+      battle.battle_log.push(`${pokemon.name}'s ${stat} was ${amount > 0 ? 'raised' : 'lowered'}!`);
+    }
   }
 
-  healMove(attacker, evaluateNumber, battle, healPercentage = 1) {
+  // try to make this more generic and implement use cases (maybe try implement effect status dmg)
+  selfDamage(attacker, evaluateNumber, battle, selfPercentage, recoilDamage = true) {
+    const actualDamage = Math.floor(evaluateNumber * selfPercentage);
+    attacker.status.currentHP -= actualDamage;
+
+    recoilDamage ? battle.battle_log.push(`${attacker.name} took ${actualDamage} recoil damage!`) : battle.battle_log.push(`${attacker.name} lost ${actualDamage} HP!`);
+  }
+
+  resetStats(target) {
+    target.stats.attackModifier = 1;
+    target.stats.defenseModifier = 1;
+    target.stats.specialAttackModifier = 1;
+    target.stats.specialDefenseModifier = 1;
+    target.stats.speedModifier = 1;
+    target.stats.evasionModifier = 1;
+    battle.battle_log.push(`${target.name}'s stat changes were reset!`);
+  }    
+  
+  healMove(attacker, evaluateNumber, battle, healPercentage = 1) { //evaluate number is the base number used to calculate the healing amount
     const healingAmount = Math.ceil(evaluateNumber * healPercentage);
 
     const actualHealing = Math.min(healingAmount, attacker.hp - attacker.status.currentHP);
@@ -123,8 +160,9 @@ class Move {
     }
 
     // Check if the defender already has a status condition
-    if (defender.status.statusCondition !== '') {
+    if (defender.status.statusCondition !== null) {
       battle.battle_log.push(`${defender.name} is already affected by ${defender.status.statusCondition}!`);
+      return;
     }
 
     // Set the new status condition
@@ -145,6 +183,7 @@ class Move {
       battle.battle_log.push(statusMessages[status]);
     }
   }
+
 }
 
 class Effect {
@@ -187,183 +226,3 @@ const pushEffect = (effect) => {
 }
 
 export const effectsStack = [];
-
-export const moveset = [
-  new Move(0, 'Swap', null, 0, 100, 'Swap the active Pokemon.', function(owner, battle) {
-    if(owner == 'maker') {
-      // flip two entry array maker_battling_pokemons
-      let temp = battle.maker_battling_pokemons[0];
-      battle.maker_battling_pokemons[0] = battle.maker_battling_pokemons[1];
-      battle.maker_battling_pokemons[1] = temp;
-    } else {
-      // flip two entry array taker_battling_pokemons
-      let temp = battle.taker_battling_pokemons[0];
-      battle.taker_battling_pokemons[0] = battle.taker_battling_pokemons[1];
-      battle.taker_battling_pokemons[1] = temp;
-    }
-  }, 10),
-  new Move(1, 'Tackle', 'Normal', 40, 100, 'A physical attack that deals damage.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-  }),
-  new Move(2, 'Vine Whip', 'Grass', 45, 100, 'A physical attack that deals damage.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-  }),
-  new Move(3, 'Growl', 'Normal', 0, 100, 'Lowers the opponent\'s Attack by one stage.', function(agent, battle, attacker, defender) {
-    this.statsMultiplier(defender, 'attack', -1, battle);
-    // pushEffect(new Effect(defender, 'attack', -1, Infinity))
-  }),
-  new Move(4, 'Razor Leaf', 'Grass', 55, 95, 'A physical attack that deals damage with a high critical hit ratio.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-  }),
-  new Move(5, 'Solar Beam', 'Grass', 120, 100, 'Charges on the first turn, then attacks on the second.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-  }),
-  new Move(6, 'Sleep Powder', 'Grass', 0, 75, 'Puts the opponent to sleep.', function(agent, battle, attacker, defender) {
-    this.inflictStatus(defender, 'sleep', battle);
-  }),
-  new Move(7, 'Leech Seed', 'Grass', 0, 90, 'Plants a seed on the opponent to absorb HP each turn.', function(agent, battle, attacker, defender) {
-    this.inflictStatus(defender, 'leech seed', battle);
-  }),
-  new Move(8, 'Scratch', 'Normal', 40, 100, 'A physical attack that deals damage.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-  }),
-  new Move(9, 'Ember', 'Fire', 40, 100, 'Deals damage with a 10% chance to burn the opponent.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-    if (Math.random() < 0.1) this.inflictStatus(defender, 'burn', battle);
-  }),
-  new Move(10, 'Flamethrower', 'Fire', 90, 100, 'Deals damage with a 10% chance to burn the opponent.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-    if (Math.random() < 0.1) this.inflictStatus(defender, 'burn', battle);
-  }),
-  new Move(11, 'Smokescreen', 'Normal', null, 100, 'Lowers the opponent\'s accuracy by one stage.', function(agent, battle, attacker, defender) {
-    this.statsMultiplier(defender, 'accuracy', -1, battle);
-  }),
-  new Move(12, 'Wing Attack', 'Flying', 60, 100, 'A physical attack that deals damage.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-  }),
-  new Move(13, 'Dragon Claw', 'Dragon', 80, 100, 'A physical attack that deals damage.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-  }),
-  new Move(14, 'Water Gun', 'Water', 40, 100, 'A special attack that deals damage.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-  }),
-  new Move(15, 'Tail Whip', 'Normal', null, 100, 'Lowers the opponent\'s Defense by one stage.', function(agent, battle, attacker, defender) {
-    this.statsMultiplier(defender, 'defense', -1, battle);
-  }),
-  new Move(16, 'Water Pulse', 'Water', 60, 100, 'A special attack that deals damage with a 20% chance to confuse the opponent.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-    if (Math.random() < 0.2) this.inflictStatus(defender, 'confuse', battle);
-  }),
-  new Move(17, 'Bite', 'Dark', 60, 100, 'A physical attack that deals damage with a 30% chance to flinch.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-    if (Math.random() < 0.3) this.inflictStatus(defender, 'flinch', battle);
-  }),
-  new Move(18, 'Hydro Pump', 'Water', 110, 80, 'A special attack that deals damage.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-  }),
-  new Move(19, 'Skull Bash', 'Normal', 130, 100, 'A physical attack that raises Defense on the first turn, then deals damage on the second.', function(agent, battle, attacker, defender) {
-    this.statsMultiplier(attacker, 'defense', 1, battle);
-    this.dealDamage(agent, battle, attacker, defender);
-  }),
-  new Move(20, 'String Shot', 'Bug', null, 95, 'Lowers the opponent\'s Speed by one stage.', function(agent, battle, attacker, defender) {
-    this.statsMultiplier(defender, 'speed', -1, battle);
-  }),
-  new Move(21, 'Harden', 'Normal', null, null, 'Raises the user\'s Defense by one stage.', function(agent, battle, attacker, defender) {
-    this.statsMultiplier(attacker, 'defense', 1, battle);
-  }),
-  new Move(22, 'Gust', 'Flying', 40, 100, 'A special attack that deals damage.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-  }),
-  new Move(23, 'Confusion', 'Psychic', 50, 100, 'A special attack that deals damage with a 10% chance to confuse the opponent.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-    if (Math.random() < 0.1) this.inflictStatus(defender, 'confuse', battle);
-  }),
-  new Move(24, 'Poison Sting', 'Poison', 15, 100, 'A physical attack that deals damage with a 30% chance to poison the opponent.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-    if (Math.random() < 0.3) this.inflictStatus(defender, 'poison', battle);
-  }),
-  new Move(25, 'Twineedle', 'Bug', 25, 100, 'A physical attack that hits the target twice.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-    this.dealDamage(agent, battle, attacker, defender);
-    if (Math.random() < 0.1) this.inflictStatus(defender, 'poison', battle);
-  }),
-  new Move(26, 'Poison Jab', 'Poison', 80, 100, 'A physical attack that deals damage with a 30% chance to poison the opponent.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-    if (Math.random() < 0.3) this.inflictStatus(defender, 'poison', battle);
-  }),
-  new Move(27, 'Agility', 'Psychic', null, null, 'Raises the user\'s Speed by two stages.', function(agent, battle, attacker, defender) {
-    this.statsMultiplier(attacker, 'speed', 2, battle);
-  }),
-  new Move(28, 'Sand Attack', 'Ground', null, 100, 'Lowers the opponent\'s accuracy by one stage.', function(agent, battle, attacker, defender) {
-    this.statsMultiplier(defender, 'accuracy', -1, battle);
-  }),
-  new Move(29, 'Hurricane', 'Flying', 110, 70, 'A special attack that deals damage with a 30% chance to confuse the opponent.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-    if (Math.random() < 0.3) this.inflictStatus(defender, 'confuse', battle);
-  }),
-  new Move(30, 'Hyper Fang', 'Normal', 80, 90, 'A physical attack that deals damage with a 10% chance to flinch the opponent.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-    if (Math.random() < 0.1) this.inflictStatus(defender, 'flinch', battle);
-  }),
-  new Move(31, 'Crunch', 'Dark', 80, 100, 'A physical attack that deals damage with a 20% chance to lower the opponent\'s Defense by one stage.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-    if (Math.random() < 0.2) this.statsMultiplier(defender, 'defense', -1, battle);
-  }),
-  new Move(32, 'Peck', 'Flying', 35, 100, 'A physical attack that deals damage.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-  }),
-  new Move(33, 'Fury Attack', 'Normal', 15, 85, 'A physical attack that hits the target 2-5 times.', function(agent, battle, attacker, defender) {
-    const hits = Math.floor(Math.random() * 4) + 2; // Random between 2 and 5
-    for (let i = 0; i < hits; i++) {
-      this.dealDamage(agent, battle, attacker, defender);
-    }
-  }),
-  new Move(34, 'Drill Peck', 'Flying', 80, 100, 'A physical attack that deals damage.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-  }),
-  new Move(35, 'Wrap', 'Normal', 15, 90, 'A physical attack that deals damage and prevents the opponent from escaping for 2-5 turns.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-    this.inflictStatus(defender, 'wrap', battle);
-  }),
-  new Move(36, 'Glare', 'Normal', null, 100, 'Paralyzes the opponent.', function(agent, battle, attacker, defender) {
-    this.inflictStatus(defender, 'paralyze', battle);
-  }),
-  new Move(37, 'Thunderbolt', 'Electric', 90, 90, 'A special attack that deals damage with a 10% chance to paralyze the opponent.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-    if (Math.random() < 0.1) this.inflictStatus(defender, 'paralyze', battle);
-  }),
-  new Move(38, 'Charm', 'Fairy', null, 100, 'Lowers the opponent\'s Attack by two stages.', function(agent, battle, attacker, defender) {
-    this.statsMultiplier(defender, 'attack', -2, battle);
-  }),
-  new Move(39, 'Bug Bite', 'Bug', 60, 100, 'A physical attack that deals damage and eats the opponent\'s Berry if it is holding one.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-  }),
-  new Move(40, 'Quick Attack', 'Normal', 40, 100, 'A physical attack that always goes first.', function(agent, battle, attacker, defender) {
-    this.dealDamage(agent, battle, attacker, defender);
-  }),
-  new Move(41, 'Giga Drain', 'Grass', 75, 100, 'A physical attack that deals damage and heals the user for a portion of the damage dealt.', function(agent, battle, attacker, defender) {
-    const damageDealt = this.dealDamage(agent, battle, attacker, defender);
-    this.healMove(attacker, damageDealt, battle, 0.5); // Heal for 50% of the damage dealt
-  }),
-  new Move(42, 'Soft Boiled', 'Normal', null, null, 'Heals the user for 50% of its max HP.', function(agent, battle, attacker, defender) {
-    this.healMove(attacker, attacker.hp, battle, 0.5);
-  }),
-  new Move(43, 'Swords Dance', 'Normal', null, null, 'Raises the user\'s Attack by two stages.', function(agent, battle, attacker, defender) {
-    this.statsMultiplier(attacker, 'attack', 2, battle);
-  }),
-  new Move(44, 'Drain Punch', 'Fighting', 75, 100, 'A physical attack that deals damage and heals the user for a portion of the damage dealt.', function(agent, battle, attacker, defender) {
-    const damageDealt = this.dealDamage(agent, battle, attacker, defender);
-    this.healMove(attacker, damageDealt, battle, 0.5);
-  }),
-  new Move(45, 'Drain Kiss', 'Fairy', 50, 100, 'A special attack that deals damage and heals the user for a portion of the damage dealt.', function(agent, battle, attacker, defender) {
-    const damageDealt = this.dealDamage(agent, battle, attacker, defender);
-    this.healMove(attacker, damageDealt, battle, 0.5);
-  }),
-  new Move(46, 'Recover', 'Normal', null, null, 'Heals the user for 50% of its max HP.', function(agent, battle, attacker, defender) {
-    this.healMove(attacker, attacker.hp, battle, 0.5);
-  }),
-  new Move(47, 'Rest', 'Psychic', null, null, 'Puts the user to sleep and heals it for 100% of its max HP.', function(agent, battle, attacker, defender) {
-    this.healMove(attacker, attacker.hp, battle);
-    this.inflictStatus(attacker, 'sleep', battle);
-  }),
-];

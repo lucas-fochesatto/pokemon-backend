@@ -1,6 +1,7 @@
 import db from "../database.js";
 import Battle from "../Models/Battle.js";
-import { effectsStack, EndEffect, moveset, StartEffect } from "./moves.js";
+import { effectsStack, EndEffect, StartEffect } from "./moves.js";
+import { moveset } from "./moveset.js";
 import { typeMatchup } from "./typeMatchup.js";
 
 export const getBattleFromDb = async (battleId) => {

@@ -5,7 +5,7 @@ import { localSigner, provider } from "../ethers.js";
 import { BigNumber, ethers } from "ethers";
 import { INPUTBOX_ABI } from "../utils/inputBoxAbi.js";
 import { bothPlayersMoved, createBattleInstance, getBattleFromDb, isUserPartOfBattle, performBattle, updateBattleInDatabase, updateMove } from "../utils/battleUtils.js";
-import { moveset } from "../utils/moves.js";
+import { moveset } from "../utils/moveset.js";
 
 export const sendTransaction = async (req, res) => {
   try {
@@ -152,8 +152,8 @@ export const getBattleById = async (req, res) => {
       if (err) {
         throw err;
       }
-
-      const battle = new Battle(row.id, row.maker, row.opponent, row.maker_pokemons, row.opponent_pokemons, row.maker_hp, row.opponent_hp, row.status);
+      
+      const battle = createBattleInstance(row);
 
       res.status(200).json(battle);
     });
@@ -180,7 +180,7 @@ export const joinBattle = async (req, res) => {
       })
     });
 
-    db.run('UPDATE battles SET taker = ?, taker_pokemons = ?, taker_battling_pokemons = ? WHERE id = ?', [taker, JSON.stringify(takerPokemons), '[0,1]', battleId], (err) => {
+    db.run('UPDATE battles SET taker = ?, taker_pokemons = ?, taker_battling_pokemons = ?, status = ? WHERE id = ?', [taker, JSON.stringify(takerPokemons), '[0,1]', 'ongoing', battleId], (err) => {
       if (err) {
         throw err;
       }
