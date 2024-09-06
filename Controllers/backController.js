@@ -2,11 +2,12 @@ import db from "../database.js";
 import Battle from "../Models/Battle.js";
 import pokemons from "../utils/pokemons.js";
 import { localSigner, provider } from "../ethers.js";
-import { BigNumber, ethers } from "ethers";
-import { INPUTBOX_ABI } from "../utils/inputBoxAbi.js";
+import { ethers } from "ethers";
 import { bothPlayersMoved, createBattleInstance, getBattleFromDb, isUserPartOfBattle, performBattle, updateBattleInDatabase, updateMove } from "../utils/battleUtils.js";
 import { moveset } from "../utils/moveset.js";
+import { MT19937 } from "../utils/MT19937.js";
 
+/* Essa função serve apenas para facilitar o mint de pokemons */
 export const sendTransaction = async (req, res) => {
   try {
     const connectedLocalSigner = localSigner.connect(provider);
@@ -25,80 +26,56 @@ export const sendTransaction = async (req, res) => {
   }
 }
 
+/* função vai deixar de existir, apenas por smart contract no front */
 export const assignPokemon = async (req, res) => {
-  const { hash, senderId } = req.body;
+  const { senderId, senderWallet } = req.body;
 
-  console.log('SenderId is', senderId);
+  const timestamp = Math.floor(Date.now() / 1000);
 
-  // Verifica se o hash já foi usado
-  const row = await new Promise((resolve, reject) => {
-    db.get('SELECT * FROM hashes WHERE hash = ?', [hash], (err, row) => {
+  const mt = new MT19937(timestamp);
+
+  const pokemonId = mt.randomPokemon(1,25);
+
+  db.get('SELECT * FROM players WHERE playerid = ?', [senderId], (err, row) => {
+    if (err) {
+      throw err;
+    }
+
+    const player = row;
+
+    if(!player) {
+      console.log('Player not found, creating new player');
+      db.run('INSERT INTO players (playerid, wallet, inventory) VALUES (?, ?, ?)', [senderId, senderWallet, JSON.stringify([pokemonId])]);
+
+      return res.status(200).json({ message: 'Player created successfully', pokemonId });
+    }
+
+    const inventory = JSON.parse(player.inventory);
+    inventory.push(pokemonId);
+    console.log(inventory);
+    db.run('UPDATE players SET inventory = ? WHERE playerid = ?', [JSON.stringify(inventory), senderId], (err) => {
       if (err) {
-        return reject(err);
+        throw err;
       }
-      resolve(row);
-    });
-  });
 
-  if (row) {
-    return res.status(400).json({ message: 'Hash already used' });
-  }
-
-  console.log("Hash not used yet");
-
-  // Insere o hash no banco de dados após a transação
-  const insert = db.prepare('INSERT INTO hashes (hash) VALUES (?)');
-  insert.run(hash);
-  insert.finalize();
-
-  try {
-    const connectedLocalSigner = localSigner.connect(provider);
-    const senderWallet = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266';
-
-    // Usa o signer para chamar o smart contract inputBox
-    const inputBoxContract = new ethers.Contract(
-      process.env.INPUTBOX_ADDRESS || '0x59b22D57D4f067708AB0c00552767405926dc768',
-      INPUTBOX_ABI,
-      connectedLocalSigner
-    );
-    console.log('Connected to inputBox contract');
-
-    const tx = await inputBoxContract.addInput(
-      process.env.DAPP_ADDRESS || '0xab7528bb862fb57e8a2bcd567a2e929a0be56a5e',
-      ethers.utils.toUtf8Bytes(JSON.stringify({ senderId, senderWallet, action: 'mint-pokemon' }))
-    );
-
-    const receipt = await tx.wait();
-
-    res.status(200).json({ message: 'Pokemon assigned successfully', pokemonId: receipt.events[0].args[1] });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'An error occurred' });
-  }
+      res.status(200).json({ message: 'Pokemon assigned successfully', pokemonId });
+    });    
+  })
 }
 
-
+/* trocar para um read no smart contract */
 export const pokemonsByPlayerId = async (req, res) => {
   const { id } = req.params;
 
-  const query = {
-    senderId: Number(id),
-    action: 'get-user-pokemons'
-  }
+  db.get('SELECT * FROM players WHERE playerid = ?', [id], (err, row) => {
+    if (err) {
+      return res.status(500).json({ message: 'Error getting inventory', error: err.message });
+    }
 
-  const hexQuery = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(JSON.stringify(query)));
+    const inventory = row.inventory;
 
-  const response = await fetch(`${process.env.INSPECT_URL}/${hexQuery}`);
-  const data = await response.json();
-  const payload = data.reports[0].payload;
-
-  const obj = JSON.parse(ethers.utils.toUtf8String(payload));
-  const inventory = JSON.parse(obj.object.inventory);
-
-  console.log(inventory);
-
-  res.status(200).json({inventory});
+    res.status(200).json({inventory});
+  });
 }
 
 export const createBattle = async (req, res) => {
@@ -143,7 +120,6 @@ export const createBattle = async (req, res) => {
   }
 };
 
-
 export const getBattleById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -152,7 +128,7 @@ export const getBattleById = async (req, res) => {
       if (err) {
         throw err;
       }
-      
+
       const battle = createBattleInstance(row);
 
       res.status(200).json(battle);
@@ -272,7 +248,7 @@ export const makeMove = async (req, res) => {
     await updateBattleInDatabase(battle);
 
     if(battle.status === 'ended') {
-      await registerLogToCartesi(battle);
+      await registerBattleLog(battle);
 
       res.status(200).json({ message: 'Battle ended', battle });
 
@@ -286,26 +262,14 @@ export const makeMove = async (req, res) => {
   }
 }
 
-export const registerLogToCartesi = async (battle) => {
+export const registerBattleLog = async (battle) => {
   try {
-    const connectedLocalSigner = localSigner.connect(provider);
+    db.run('INSERT INTO battle_logs (battle_id, log) VALUES (?, ?)', [battle.id, JSON.stringify(battle.battleLog)], (err) => {
+      if (err) {
+        console.error(err);
+      }
+    });
 
-    // Usa o signer para chamar o smart contract inputBox
-    const inputBoxContract = new ethers.Contract(
-      process.env.INPUTBOX_ADDRESS || '0x59b22D57D4f067708AB0c00552767405926dc768',
-      INPUTBOX_ABI,
-      connectedLocalSigner
-    );
-    console.log('Connected to inputBox contract');
-
-    const tx = await inputBoxContract.addInput(
-      process.env.DAPP_ADDRESS || '0xab7528bb862fb57e8a2bcd567a2e929a0be56a5e',
-      ethers.utils.toUtf8Bytes(JSON.stringify({ battleLog: battle.battle_log, battleId: battle.id, action: 'register-log' }))
-    );
-
-    const receipt = await tx.wait();
-
-    return receipt;
   } catch (error) {
     console.error(error);
   }
