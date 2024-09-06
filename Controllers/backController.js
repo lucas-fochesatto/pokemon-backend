@@ -4,7 +4,7 @@ import pokemons from "../utils/pokemons.js";
 import { localSigner, provider } from "../ethers.js";
 import { ethers } from "ethers";
 import { bothPlayersMoved, createBattleInstance, getBattleFromDb, isUserPartOfBattle, performBattle, updateBattleInDatabase, updateMove } from "../utils/battleUtils.js";
-import { moveset } from "../utils/moves.js";
+import { moveset } from "../utils/moveset.js";
 import { MT19937 } from "../utils/MT19937.js";
 
 /* Essa função serve apenas para facilitar o mint de pokemons */

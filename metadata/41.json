@@ -1,14 +1,14 @@
 {
-    "id": "11",
-    "name": "Metapod",
-    "type": ["Bug"],
-    "hp": 50,
-    "attack": 20,
-    "defense": 55,
-    "speed": 30,
-    "moves": [100, 96, 94],
+    "id": "41",
+    "name": "Zubat",
+    "type": ["Poison", "Flying"],
+    "hp": 40,
+    "attack": 45,
+    "defense": 35,
+    "speed": 55,
+    "moves": [17, 19, 3],
     "status": {
-      "currentHP": 50,
+      "currentHP": 40,
       "statusCondition": null,
       "statusMultipliers": {
         "attack": 0,
@@ -19,3 +19,4 @@
       }
     }
   }
+  

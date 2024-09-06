@@ -1,14 +1,14 @@
 {
-    "id": "11",
-    "name": "Metapod",
-    "type": ["Bug"],
-    "hp": 50,
-    "attack": 20,
-    "defense": 55,
-    "speed": 30,
-    "moves": [100, 96, 94],
+    "id": "37",
+    "name": "Vulpix",
+    "type": ["Fire"],
+    "hp": 38,
+    "attack": 41,
+    "defense": 40,
+    "speed": 65,
+    "moves": [52, 29, 10],
     "status": {
-      "currentHP": 50,
+      "currentHP": 38,
       "statusCondition": null,
       "statusMultipliers": {
         "attack": 0,
@@ -19,3 +19,4 @@
       }
     }
   }
+  

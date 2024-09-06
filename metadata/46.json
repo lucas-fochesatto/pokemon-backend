@@ -1,14 +1,14 @@
 {
-    "id": "11",
-    "name": "Metapod",
-    "type": ["Bug"],
-    "hp": 50,
-    "attack": 20,
+    "id": "46",
+    "name": "Paras",
+    "type": ["Bug", "Grass"],
+    "hp": 35,
+    "attack": 70,
     "defense": 55,
-    "speed": 30,
-    "moves": [100, 96, 94],
+    "speed": 25,
+    "moves": [28, 15, 18],
     "status": {
-      "currentHP": 50,
+      "currentHP": 35,
       "statusCondition": null,
       "statusMultipliers": {
         "attack": 0,
@@ -19,3 +19,4 @@
       }
     }
   }
+  

@@ -1,14 +1,14 @@
 {
-    "id": "11",
-    "name": "Metapod",
-    "type": ["Bug"],
-    "hp": 50,
-    "attack": 20,
+    "id": "26",
+    "name": "Raichu",
+    "type": ["Electric"],
+    "hp": 60,
+    "attack": 90,
     "defense": 55,
-    "speed": 30,
-    "moves": [100, 96, 94],
+    "speed": 110,
+    "moves": [37, 40, 10],
     "status": {
-      "currentHP": 50,
+      "currentHP": 60,
       "statusCondition": null,
       "statusMultipliers": {
         "attack": 0,
@@ -19,3 +19,4 @@
       }
     }
   }
+  
