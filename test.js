@@ -1,11 +1,5 @@
-import { createBattleInstance, getBattleFromDb } from "./utils/battleUtils.js";
+import { ethers } from "ethers";
 
-const row = await getBattleFromDb(1);
-const battle = createBattleInstance(row);
+const bytes = ethers.utils.toUtf8Bytes(JSON.stringify({  action: 'register-log' }))
 
-const move = 1;
-const pokemon = battle.maker_pokemons[battle.maker_battling_pokemons[0]]
-
-const moveDetails = pokemon.moveDetails.map(m => m.id == move);
-
-console.log(moveDetails);
+console.log(bytes)
